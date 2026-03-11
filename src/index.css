@@ -20,3 +20,19 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+@media print {
+  body > div > aside,
+  body > div > main > div > header,
+  body > div > main > div > section:not([aria-label="Payslip Preview"]),
+  body > div > main > div > footer {
+    display: none !important;
+  }
+  body > div > main {
+    overflow: visible !important;
+    margin-left: 0 !important;
+  }
+  body > div > main > div {
+    padding: 0 !important;
+  }
+}

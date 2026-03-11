@@ -12,6 +12,7 @@ function App() {
   const { activeProfile, dispatch, loaded } = useProfile()
   const [isEditingName, setIsEditingName] = React.useState(false)
   const [profileName, setProfileName] = React.useState('')
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false)
   
   React.useEffect(() => {
     if (activeProfile) {
@@ -30,8 +31,8 @@ function App() {
   if (!activeProfile) {
     return (
       <div className="min-h-screen flex bg-background">
-        <Sidebar />
-        <main className="flex-1 flex items-center justify-center">
+        <Sidebar collapsed={sidebarCollapsed} onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)} />
+        <main className={`flex-1 flex items-center justify-center transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
           <div className="text-center">
             <h2 className="text-xl font-medium mb-2">No Profile Selected</h2>
             <p className="text-neutral">Create a new profile to get started</p>
@@ -52,8 +53,8 @@ function App() {
   
   return (
     <div className="min-h-screen flex bg-background">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto" role="main">
+      <Sidebar collapsed={sidebarCollapsed} onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)} />
+      <main className={`flex-1 overflow-y-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`} role="main">
         <div className="p-6">
           <header className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">

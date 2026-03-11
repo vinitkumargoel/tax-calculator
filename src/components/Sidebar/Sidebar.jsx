@@ -2,7 +2,7 @@ import React, { useState, memo } from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
 import { formatCurrency, formatCurrencyShort } from '../../utils/formatCurrency.js'
-import { Briefcase, Trash2, Copy, ChevronRight } from 'lucide-react'
+import { Briefcase, Trash2, Copy, ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon, Plus, Settings } from 'lucide-react'
 import { ConfirmDialog } from '../shared/ConfirmDialog.jsx'
 import { SettingsModal } from './SettingsModal.jsx'
 
@@ -49,7 +49,7 @@ export const ProfileCard = memo(({ profile, isActive, onClick }) => {
 
 ProfileCard.displayName = 'ProfileCard'
 
-export const Sidebar = () => {
+export const Sidebar = ({ collapsed, onToggleCollapse }) => {
   const { state, dispatch, activeProfile } = useProfile()
   const { profiles, saving } = state
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, profileId: null, profileName: '' })
@@ -78,31 +78,61 @@ export const Sidebar = () => {
   }
   
   return (
-    <aside className="w-64 bg-white border-r border-border h-screen overflow-y-auto flex flex-col">
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center gap-2">
+    <aside className={`bg-white border-r border-border h-screen fixed left-0 top-0 flex flex-col transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'}`}>
+      <button
+        onClick={onToggleCollapse}
+        className="absolute -right-3 top-6 w-6 h-6 bg-white border border-border rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 z-10"
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      >
+        {collapsed ? <ChevronRightIcon size={14} /> : <ChevronLeft size={14} />}
+      </button>
+      
+      <div className={`shrink-0 border-b border-border ${collapsed ? 'p-4 flex justify-center' : 'p-4'}`}>
+        {collapsed ? (
           <Briefcase size={24} className="text-primary" />
-          <h1 className="font-bold text-lg">Salary Dashboard</h1>
-        </div>
-        <p className="text-xs text-neutral mt-1">Indian Salary Calculator</p>
+        ) : (
+          <>
+            <div className="flex items-center gap-2">
+              <Briefcase size={24} className="text-primary" />
+              <h1 className="font-bold text-lg">Salary Dashboard</h1>
+            </div>
+            <p className="text-xs text-neutral mt-1">Indian Salary Calculator</p>
+          </>
+        )}
       </div>
       
-      <div className="p-3 border-b border-border">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-neutral">Profiles</h2>
-          {saving && <span className="text-xs text-neutral">Saving…</span>}
-        </div>
+      <div className={`shrink-0 ${collapsed ? 'p-2' : 'p-3 border-b border-border'}`}>
+        {!collapsed && (
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-neutral">Profiles</h2>
+            {saving && <span className="text-xs text-neutral">Saving…</span>}
+          </div>
+        )}
       </div>
       
-      <div className="flex-1 p-3 space-y-2 overflow-y-auto">
+      <div className={`flex-1 overflow-y-auto min-h-0 ${collapsed ? 'p-2 space-y-2' : 'p-3 space-y-2'}`}>
         {profiles.map((profile) => (
           <div key={profile.id} className="relative group">
-            <ProfileCard
-              profile={profile}
-              isActive={profile.id === activeProfile?.id}
-              onClick={() => handleSelectProfile(profile.id)}
-            />
-            {profiles.length > 1 && profile.id === activeProfile?.id && (
+            {collapsed ? (
+              <button
+                onClick={() => handleSelectProfile(profile.id)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                  profile.id === activeProfile?.id
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                title={profile.name}
+              >
+                {profile.name.charAt(0).toUpperCase()}
+              </button>
+            ) : (
+              <ProfileCard
+                profile={profile}
+                isActive={profile.id === activeProfile?.id}
+                onClick={() => handleSelectProfile(profile.id)}
+              />
+            )}
+            {!collapsed && profiles.length > 1 && profile.id === activeProfile?.id && (
               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={(e) => handleDuplicateProfile(e, profile.id)}
@@ -124,26 +154,24 @@ export const Sidebar = () => {
         ))}
       </div>
       
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-border shrink-0 flex flex-col gap-2">
         <button
           onClick={handleCreateProfile}
-          className="w-full py-2 px-4 bg-primary text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+          className={`bg-primary text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center ${collapsed ? 'w-10 h-10 mx-auto' : 'w-full py-2 px-4 gap-1'}`}
+          title={collapsed ? 'New Profile' : undefined}
         >
-          + New Profile
+          <Plus size={16} />
+          {!collapsed && <span>+ New Profile</span>}
         </button>
-      </div>
-      
-      <div className="p-3 border-t border-border">
+        
         <button
           onClick={() => setSettingsOpen(true)}
           disabled={!activeProfile}
-          className="w-full py-2 px-4 border border-border bg-white rounded-md text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className={`border border-border bg-white rounded-md text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${collapsed ? 'w-10 h-10 mx-auto' : 'w-full py-2 px-4 gap-2'}`}
+          title={collapsed ? 'Settings' : undefined}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          Settings
+          <Settings size={16} />
+          {!collapsed && <span>Settings</span>}
         </button>
       </div>
       
