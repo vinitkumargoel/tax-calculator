@@ -41,17 +41,21 @@ describe('Tax Calculator - New Regime', () => {
 
     it('should calculate tax correctly for income in 5% slab', () => {
       const profile = createMockProfile({ taxRegime: 'new' })
-      const result = calculateNewRegimeTax(profile, 80000, 0)
-      const annualGross = 80000 * 12
+      const result = calculateNewRegimeTax(profile, 60000, 0)
+      const annualGross = 60000 * 12
       const taxable = annualGross - 75000
       expect(result.taxableIncome).toBe(taxable)
-      expect(result.taxBeforeCess).toBeGreaterThan(0)
+      expect(result.taxableIncome).toBeGreaterThan(400000)
+      expect(result.taxableIncome).toBeLessThan(800000)
     })
 
     it('should calculate tax correctly for income in 10% slab', () => {
       const profile = createMockProfile({ taxRegime: 'new' })
-      const result = calculateNewRegimeTax(profile, 80000, 0)
-      expect(result.taxableIncome).toBeGreaterThan(700000)
+      const result = calculateNewRegimeTax(profile, 110000, 0)
+      const taxable = 110000 * 12 - 75000
+      expect(result.taxableIncome).toBe(taxable)
+      expect(result.taxableIncome).toBeGreaterThan(1200000)
+      expect(result.taxableIncome).toBeLessThan(1600000)
       expect(result.taxBeforeCess).toBeGreaterThan(0)
     })
 
@@ -64,26 +68,26 @@ describe('Tax Calculator - New Regime', () => {
   })
 
   describe('rebate application', () => {
-    it('should apply full rebate for taxable income at or below 700000 in new regime', () => {
+    it('should apply full rebate for taxable income at or below 1200000 in new regime', () => {
       const profile = createMockProfile({ taxRegime: 'new' })
-      const result = calculateNewRegimeTax(profile, 64500, 0)
-      const annualGross = 64500 * 12
+      const result = calculateNewRegimeTax(profile, 106000, 0)
+      const annualGross = 106000 * 12
       const taxable = annualGross - 75000
-      expect(taxable).toBeLessThanOrEqual(700000)
+      expect(taxable).toBeLessThanOrEqual(1200000)
       expect(result.rebate).toBeGreaterThan(0)
       expect(result.totalTax).toBe(0)
     })
 
-    it('should not apply rebate for taxable income above 700000', () => {
+    it('should not apply rebate for taxable income above 1200000', () => {
       const profile = createMockProfile({ taxRegime: 'new' })
-      const result = calculateNewRegimeTax(profile, 100000, 0)
+      const result = calculateNewRegimeTax(profile, 150000, 0)
       expect(result.rebate).toBe(0)
     })
 
-    it('should apply correct rebate max of 25000 for new regime', () => {
+    it('should apply correct rebate max of 60000 for new regime', () => {
       const profile = createMockProfile({ taxRegime: 'new' })
-      const result = calculateNewRegimeTax(profile, 64000, 0)
-      expect(result.rebate).toBeLessThanOrEqual(25000)
+      const result = calculateNewRegimeTax(profile, 110000, 0)
+      expect(result.rebate).toBeLessThanOrEqual(60000)
     })
   })
 

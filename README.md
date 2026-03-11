@@ -1,6 +1,6 @@
 # 🧮 Indian Tax Calculator
 
-A comprehensive, open-source Indian salary and tax calculator built with React. Calculate your in-hand salary, compare tax regimes, and understand your earnings breakdown for FY 2024-25.
+A comprehensive, open-source Indian salary and tax calculator built with React. Calculate your in-hand salary, compare tax regimes, and understand your earnings breakdown for FY 2025-26 (AY 2026-27).
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react)
@@ -18,9 +18,9 @@ A comprehensive, open-source Indian salary and tax calculator built with React. 
 - **Net In-Hand Salary**: After all deductions
 - **CTC Calculation**: Including employer contributions (PF, NPS, Gratuity)
 
-### 💰 Tax Computation (FY 2024-25)
+### 💰 Tax Computation (FY 2025-26 / AY 2026-27)
 - **Old Tax Regime**: Full deductions (HRA, 80C, 80D, Home Loan, NPS)
-- **New Tax Regime**: Simplified with standard deduction
+- **New Tax Regime**: Simplified with ₹4L basic exemption, tax-free up to ₹12L
 - **Side-by-side Comparison**: Find your optimal regime automatically
 
 ### 📋 Deductions & Exemptions
@@ -123,7 +123,7 @@ npm run test:watch
 
 ## 📖 Calculation Reference
 
-### Old Tax Regime Slabs (FY 2024-25)
+### Old Tax Regime Slabs (FY 2025-26)
 
 | Income Range | Tax Rate |
 |--------------|----------|
@@ -132,16 +132,30 @@ npm run test:watch
 | ₹5,00,001 - ₹10,00,000 | 20% |
 | Above ₹10,00,000 | 30% |
 
-### New Tax Regime Slabs (FY 2024-25)
+### New Tax Regime Slabs (FY 2025-26)
 
 | Income Range | Tax Rate |
 |--------------|----------|
-| Up to ₹3,00,000 | 0% |
-| ₹3,00,001 - ₹7,00,000 | 5% |
-| ₹7,00,001 - ₹10,00,000 | 10% |
-| ₹10,00,001 - ₹12,00,000 | 15% |
-| ₹12,00,001 - ₹15,00,000 | 20% |
-| Above ₹15,00,000 | 30% |
+| Up to ₹4,00,000 | 0% |
+| ₹4,00,001 - ₹8,00,000 | 5% |
+| ₹8,00,001 - ₹12,00,000 | 10% |
+| ₹12,00,001 - ₹16,00,000 | 15% |
+| ₹16,00,001 - ₹20,00,000 | 20% |
+| ₹20,00,001 - ₹24,00,000 | 25% |
+| Above ₹24,00,000 | 30% |
+
+### Section 87A Rebate
+- **Old Regime**: Up to ₹12,500 (income up to ₹5L tax-free)
+- **New Regime**: Up to ₹60,000 (income up to ₹12L tax-free)
+
+### Surcharge Rates
+
+| Income | Old Regime | New Regime |
+|--------|------------|------------|
+| ₹50L - ₹1Cr | 10% | 10% |
+| ₹1Cr - ₹2Cr | 15% | 15% |
+| ₹2Cr - ₹5Cr | 25% | 25% |
+| Above ₹5Cr | 37% | 25% |
 
 ### HRA Exemption Formula
 ```
@@ -179,7 +193,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Tax calculations based on Indian Income Tax Act for FY 2024-25
+- Tax calculations based on Indian Income Tax Act for FY 2025-26 (AY 2026-27)
+- Tax slab information from [ClearTax](https://cleartax.in)
 - Professional Tax slabs sourced from respective state regulations
 - Icons by [Lucide](https://lucide.dev/)
 
@@ -193,4 +208,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Disclaimer:** This calculator is for educational purposes only. Please consult a qualified tax professional for official tax advice.
+**Disclaimer:** This calculator is for educational purposes only. Tax laws are subject to change. Please consult a qualified tax professional for official tax advice.

@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial open source release
 - Multi-profile salary management
-- Old and New tax regime calculations (FY 2024-25)
+- Old and New tax regime calculations (FY 2025-26 / AY 2026-27)
 - HRA exemption calculation (metro/non-metro support)
 - Section 80C deduction tracking (₹1.5L limit)
 - Section 80D medical insurance deductions
@@ -31,11 +31,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit tests for calculation utilities
 
 ### Tax Features
-- Old Regime tax slabs (FY 2024-25)
-- New Regime tax slabs (FY 2024-25)
-- Standard deduction: ₹50K (Old), ₹75K (New)
-- Section 87A rebate calculation
+- Old Regime tax slabs (FY 2025-26)
+  - Basic exemption: ₹2.5L
+  - Standard deduction: ₹50,000
+  - Section 87A rebate: ₹12,500 (up to ₹5L tax-free)
+- New Regime tax slabs (FY 2025-26)
+  - Basic exemption: ₹4L
+  - Standard deduction: ₹75,000
+  - Section 87A rebate: ₹60,000 (up to ₹12L tax-free)
+  - New 25% slab for ₹20L-₹24L income
 - 4% Health & Education Cess
+- Surcharge rates (10%/15%/25%/37% old, capped at 25% new)
 - State-wise Professional Tax slabs:
   - Maharashtra
   - Karnataka
