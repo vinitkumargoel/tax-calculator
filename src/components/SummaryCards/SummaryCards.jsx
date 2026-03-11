@@ -3,7 +3,7 @@ import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { formatCurrency, formatCurrencyShort, formatPercent } from '../../utils/formatCurrency.js'
 import { IndianRupee, TrendingUp, Percent, Building2, PiggyBank, Briefcase } from 'lucide-react'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Coins } from 'lucide-react'
 
 const SummaryCard = memo(({ icon: Icon, label, value, subValue, color = 'primary', warning }) => (
   <div 
@@ -36,8 +36,10 @@ export const SummaryCards = memo(() => {
   
   if (!activeProfile || !calculations) return null
   
+  const hasRSU = (activeProfile?.earnings?.rsu || []).length > 0
+  
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-6" role="region" aria-label="Summary cards">
+    <div className={`grid gap-4 mb-6 ${hasRSU ? 'grid-cols-2 lg:grid-cols-7' : 'grid-cols-2 lg:grid-cols-6'}`} role="region" aria-label="Summary cards">
       <SummaryCard
         icon={IndianRupee}
         label="Monthly In-Hand"
@@ -51,6 +53,15 @@ export const SummaryCards = memo(() => {
         value={formatCurrencyShort(calculations.annualCTC)}
         color="primary"
       />
+      {hasRSU && calculations.rsuAnnualValue > 0 && (
+        <SummaryCard
+          icon={Coins}
+          label="RSU Value"
+          value={formatCurrencyShort(calculations.rsuAnnualValue)}
+          subValue="Annual vested"
+          color="primary"
+        />
+      )}
       <SummaryCard
         icon={TrendingUp}
         label="Annual Tax"

@@ -22,6 +22,7 @@ const createDefaultProfile = () => ({
     medicalAllowance: 1250,
     custom: [],
     groupInsurance: 0,
+    rsu: [],
   },
   deductions: {
     vpf: 0,
@@ -294,6 +295,50 @@ const profileReducer = (state, action) => {
         profiles: state.profiles.map(p => 
           p.id === state.activeProfileId 
             ? { ...p, exemptions: { ...p.exemptions, custom }, updatedAt: new Date().toISOString() }
+            : p
+        ),
+      }
+    }
+    
+    case 'ADD_RSU': {
+      const profile = state.profiles.find(p => p.id === state.activeProfileId)
+      if (!profile) return state
+      const rsu = [...(profile.earnings.rsu || []), action.payload]
+      return {
+        ...state,
+        profiles: state.profiles.map(p => 
+          p.id === state.activeProfileId 
+            ? { ...p, earnings: { ...p.earnings, rsu }, updatedAt: new Date().toISOString() }
+            : p
+        ),
+      }
+    }
+    
+    case 'REMOVE_RSU': {
+      const profile = state.profiles.find(p => p.id === state.activeProfileId)
+      if (!profile) return state
+      const rsu = (profile.earnings.rsu || []).filter(c => c.id !== action.payload)
+      return {
+        ...state,
+        profiles: state.profiles.map(p => 
+          p.id === state.activeProfileId 
+            ? { ...p, earnings: { ...p.earnings, rsu }, updatedAt: new Date().toISOString() }
+            : p
+        ),
+      }
+    }
+    
+    case 'UPDATE_RSU': {
+      const profile = state.profiles.find(p => p.id === state.activeProfileId)
+      if (!profile) return state
+      const rsu = (profile.earnings.rsu || []).map(c => 
+        c.id === action.payload.id ? { ...c, ...action.payload } : c
+      )
+      return {
+        ...state,
+        profiles: state.profiles.map(p => 
+          p.id === state.activeProfileId 
+            ? { ...p, earnings: { ...p.earnings, rsu }, updatedAt: new Date().toISOString() }
             : p
         ),
       }

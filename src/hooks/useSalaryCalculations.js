@@ -22,9 +22,15 @@ export const useSalaryCalculations = (profile) => {
     const bonus = Number(earnings.bonus) || 0
     const medicalAllowance = Number(earnings.medicalAllowance) || 0
     const customEarnings = (earnings.custom || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
+    const rsuAnnualValue = (earnings.rsu || []).reduce((sum, item) => {
+      const units = Number(item.units) || 0
+      const priceUsd = Number(item.priceUsd) || 0
+      const exchangeRate = Number(item.exchangeRate) || 85
+      return sum + (units * priceUsd * exchangeRate)
+    }, 0)
     
     const monthlyGross = basic + hra + da + specialAllowance + medicalAllowance + (lta / 12) + customEarnings
-    const annualGross = monthlyGross * 12 + bonus
+    const annualGross = monthlyGross * 12 + bonus + rsuAnnualValue
     
     const pfResult = calculatePF(basic, pfMode)
     const employeePF = pfResult.employeePF
@@ -85,6 +91,7 @@ export const useSalaryCalculations = (profile) => {
       takeHomePercent: annualCTC > 0 ? (annualNetInHand / annualCTC) * 100 : 0,
       employerNPS,
       groupInsurance: earnings.groupInsurance || 0,
+      rsuAnnualValue,
       taxResult,
       oldRegimeTax,
       newRegimeTax,
@@ -102,6 +109,7 @@ export const useSalaryCalculations = (profile) => {
     earnings.medicalAllowance,
     earnings.custom,
     earnings.groupInsurance,
+    earnings.rsu,
     exemptions,
     pfMode,
     state,

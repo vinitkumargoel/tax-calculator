@@ -2,6 +2,7 @@ import React from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { CurrencyInput, CurrencyInputWithToggle, InfoTooltip } from '../shared/index.js'
 import { Plus, Trash2 } from 'lucide-react'
+import { DollarSign } from 'lucide-react'
 
 export const EarningsForm = () => {
   const { activeProfile, dispatch } = useProfile()
@@ -35,6 +36,22 @@ export const EarningsForm = () => {
       c.id === id ? { ...c, [field]: value } : c
     )
     dispatch({ type: 'UPDATE_EARNINGS', payload: { custom } })
+  }
+  
+  const handleAddRSU = () => {
+    const id = crypto.randomUUID()
+    dispatch({ 
+      type: 'ADD_RSU', 
+      payload: { id, name: '', units: 0, priceUsd: 0, exchangeRate: 85 } 
+    })
+  }
+  
+  const handleRemoveRSU = (id) => {
+    dispatch({ type: 'REMOVE_RSU', payload: id })
+  }
+  
+  const handleUpdateRSU = (id, field, value) => {
+    dispatch({ type: 'UPDATE_RSU', payload: { id, [field]: value } })
   }
   
   return (
@@ -147,6 +164,87 @@ export const EarningsForm = () => {
                   onClick={() => handleRemoveCustomEarning(item.id)}
                   className="p-2 text-negative hover:bg-red-50 rounded mt-0.5"
                   title="Remove earning"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className="border-t border-border pt-4 mt-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-medium">RSUs (Restricted Stock Units)</h4>
+            <button
+              onClick={handleAddRSU}
+              className="px-3 py-1 text-xs bg-primary text-white rounded-md hover:bg-blue-700 flex items-center gap-1"
+            >
+              <Plus size={14} /> Add
+            </button>
+          </div>
+          
+          {(earnings.rsu || []).length === 0 && (
+            <p className="text-xs text-neutral mb-2">
+              Add RSU grants to calculate annual vesting value in ₹
+            </p>
+          )}
+          
+          {(earnings.rsu || []).map((item) => (
+            <div key={item.id} className="p-3 bg-gray-50 rounded-md mb-2">
+              <div className="flex gap-2 items-start">
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="text"
+                    value={item.name}
+                    onChange={(e) => handleUpdateRSU(item.id, 'name', e.target.value)}
+                    className="w-full px-3 py-1.5 text-sm border border-border rounded-md"
+                    placeholder="Company/Stock name"
+                  />
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-xs text-neutral mb-1">Units/Year</label>
+                      <input
+                        type="number"
+                        value={item.units || 0}
+                        onChange={(e) => handleUpdateRSU(item.id, 'units', Number(e.target.value))}
+                        className="w-full px-3 py-1.5 text-sm border border-border rounded-md"
+                        min="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral mb-1">Price ($)</label>
+                      <div className="relative">
+                        <DollarSign size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-neutral" />
+                        <input
+                          type="number"
+                          value={item.priceUsd || 0}
+                          onChange={(e) => handleUpdateRSU(item.id, 'priceUsd', Number(e.target.value))}
+                          className="w-full pl-7 pr-3 py-1.5 text-sm border border-border rounded-md"
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral mb-1">USD/INR Rate</label>
+                      <input
+                        type="number"
+                        value={item.exchangeRate || 85}
+                        onChange={(e) => handleUpdateRSU(item.id, 'exchangeRate', Number(e.target.value))}
+                        className="w-full px-3 py-1.5 text-sm border border-border rounded-md"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-xs text-neutral bg-white p-2 rounded border border-border">
+                    Annual Value: ₹{((item.units || 0) * (item.priceUsd || 0) * (item.exchangeRate || 85)).toLocaleString('en-IN')}
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleRemoveRSU(item.id)}
+                  className="p-2 text-negative hover:bg-red-50 rounded mt-0.5"
+                  title="Remove RSU"
                 >
                   <Trash2 size={16} />
                 </button>
