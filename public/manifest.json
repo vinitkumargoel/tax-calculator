@@ -1,0 +1,28 @@
+{
+  "name": "Indian Tax Calculator",
+  "short_name": "TaxCalc",
+  "description": "Free Indian Tax Calculator for FY 2024-25. Calculate income tax, compare old vs new tax regime, estimate in-hand salary, HRA exemption, 80C deductions.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity", "utilities"],
+  "lang": "en-IN",
+  "dir": "ltr"
+}

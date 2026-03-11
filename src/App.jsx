@@ -53,9 +53,9 @@ function App() {
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto" role="main">
         <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
+          <header className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               {isEditingName ? (
                 <div className="flex items-center gap-2">
@@ -67,15 +67,16 @@ function App() {
                     onKeyDown={(e) => e.key === 'Enter' && handleNameSave()}
                     className="text-xl font-medium px-2 py-1 border border-primary rounded focus:outline-none"
                     autoFocus
+                    aria-label="Profile name"
                   />
-                  <button onClick={handleNameSave} className="p-1 hover:bg-gray-100 rounded">
+                  <button onClick={handleNameSave} className="p-1 hover:bg-gray-100 rounded" aria-label="Save profile name">
                     <Check size={20} className="text-positive" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-medium">{activeProfile.name}</h2>
-                  <button onClick={() => setIsEditingName(true)} className="p-1 hover:bg-gray-100 rounded">
+                  <h1 className="text-xl font-medium">{activeProfile.name}</h1>
+                  <button onClick={() => setIsEditingName(true)} className="p-1 hover:bg-gray-100 rounded" aria-label="Edit profile name">
                     <Edit2 size={16} className="text-neutral" />
                   </button>
                 </div>
@@ -87,32 +88,43 @@ function App() {
             <p className="text-xs text-neutral">
               Last updated: {new Date(activeProfile.updatedAt).toLocaleString('en-IN')}
             </p>
-          </div>
+          </header>
           
-          <SummaryCards />
+          <section aria-label="Salary Summary">
+            <SummaryCards />
+          </section>
           
-          <RegimeComparison />
+          <section aria-label="Tax Regime Comparison">
+            <RegimeComparison />
+          </section>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            <EarningsForm />
-            <DeductionsForm />
-          </div>
+          <section aria-label="Earnings and Deductions Input">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+              <EarningsForm />
+              <DeductionsForm />
+            </div>
+          </section>
           
-          <ExemptionsForm />
+          <section aria-label="Exemptions">
+            <ExemptionsForm />
+          </section>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            <BreakdownDonut />
-            <ComponentsBar />
-          </div>
+          <section aria-label="Charts and Visualizations">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+              <BreakdownDonut />
+              <ComponentsBar />
+            </div>
+            <Section80CBar />
+          </section>
           
-          <Section80CBar />
+          <section aria-label="Payslip Preview">
+            <PayslipPreview />
+          </section>
           
-          <PayslipPreview />
-          
-          <div className="mt-4 text-xs text-neutral text-center print:hidden">
+          <footer className="mt-4 text-xs text-neutral text-center print:hidden">
             <p>⚠️ This calculator provides estimates. For exact figures, consult a Chartered Accountant.</p>
             <p>Surcharge (income &gt; ₹50L), marginal relief, and mid-year ESI transitions not calculated.</p>
-          </div>
+          </footer>
         </div>
       </main>
     </div>
