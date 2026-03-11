@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react'
+import { useMemo } from 'react'
 import { calculatePF } from '../utils/pfCalculator.js'
 import { calculateGratuity } from '../utils/gratuityCalculator.js'
 import { calculateESI } from '../utils/esiCalculator.js'
@@ -12,6 +12,8 @@ export const useSalaryCalculations = (profile) => {
   const state = profile?.state || 'none'
   
   const calculations = useMemo(() => {
+    if (!profile) return null
+    
     const basic = Number(earnings.basic) || 0
     const hra = Number(earnings.hra) || 0
     const da = Number(earnings.da) || 0
@@ -89,7 +91,25 @@ export const useSalaryCalculations = (profile) => {
       betterRegime: oldRegimeTax.totalTax < newRegimeTax.totalTax ? 'old' : 'new',
       savingWithBetterRegime: Math.abs(oldRegimeTax.totalTax - newRegimeTax.totalTax),
     }
-  }, [earnings, exemptions, pfMode, state, profile])
+  }, [
+    profile,
+    earnings.basic,
+    earnings.hra,
+    earnings.da,
+    earnings.lta,
+    earnings.specialAllowance,
+    earnings.bonus,
+    earnings.medicalAllowance,
+    earnings.custom,
+    earnings.groupInsurance,
+    exemptions,
+    pfMode,
+    state,
+    profile?.deductions?.vpf,
+    profile?.deductions?.npsEmployee,
+    profile?.deductions?.npsEmployer,
+    profile?.deductions?.custom,
+  ])
   
   return calculations
 }

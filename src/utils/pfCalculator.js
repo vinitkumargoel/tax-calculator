@@ -1,5 +1,9 @@
-import { formatCurrency } from './formatCurrency.js'
-
+/**
+ * Calculates Provident Fund (PF) contributions based on basic salary and PF mode
+ * @param {number} basic - Basic salary amount
+ * @param {'capped' | 'full'} pfMode - PF calculation mode: 'capped' (₹15,000 limit) or 'full' (no cap)
+ * @returns {{ employeePF: number, employerPF: number, employerPFContribution: number, employerEPS: number }} PF calculation breakdown
+ */
 export const calculatePF = (basic, pfMode = 'capped') => {
   const basicNum = Number(basic) || 0
   
@@ -31,6 +35,11 @@ export const calculatePF = (basic, pfMode = 'capped') => {
   }
 }
 
+/**
+ * Calculates Voluntary Provident Fund (VPF) contribution
+ * @param {number} vpfAmount - VPF amount entered by user
+ * @returns {number} VPF contribution amount
+ */
 export const calculateVPF = (vpfAmount) => {
   return Number(vpfAmount) || 0
 }

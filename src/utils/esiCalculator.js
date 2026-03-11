@@ -1,3 +1,10 @@
+/**
+ * Calculates Employee State Insurance (ESI) contributions
+ * Applicable if monthly gross ≤ ₹21,000
+ * Employee: 0.75%, Employer: 3.25%
+ * @param {number} monthlyGross - Monthly gross salary
+ * @returns {{ applicable: boolean, employeeESI: number, employerESI: number }} ESI calculation result
+ */
 export const calculateESI = (monthlyGross) => {
   const gross = Number(monthlyGross) || 0
   

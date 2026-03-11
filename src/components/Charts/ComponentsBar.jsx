@@ -1,54 +1,78 @@
 import React from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
-import { formatCurrency } from '../../utils/formatCurrency.js'
+import { formatCurrency, formatCurrencyShort } from '../../utils/formatCurrency.js'
 
 export const ComponentsBar = () => {
   const { activeProfile } = useProfile()
   const calculations = useSalaryCalculations(activeProfile)
   const earnings = activeProfile?.earnings || {}
   
+  if (!calculations) return null
+  
   const data = [
     { 
-      name: 'Monthly',
+      name: 'Amount',
       Basic: earnings.basic || 0,
       HRA: earnings.hra || 0,
       DA: earnings.da || 0,
-      'Special Allowance': earnings.specialAllowance || 0,
+      'Special': earnings.specialAllowance || 0,
       Medical: earnings.medicalAllowance || 0,
       'Other': ((earnings.lta || 0) / 12) + (earnings.custom || []).reduce((sum, c) => sum + (Number(c.amount) || 0), 0),
-      'Employer PF': calculations.employerPF,
-      Gratuity: calculations.gratuityMonthly,
-      'Employer ESI': calculations.employerESI,
     },
   ]
   
-  const COLORS = ['#1A56DB', '#0E9F6E', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#FCD34D', '#10B981', '#A78BFA']
+  const COLORS = ['#1A56DB', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4']
+  
+  const monthlyGross = calculations.monthlyGross
   
   return (
-    <div className="bg-white p-4 rounded-lg border border-border">
-      <h3 className="font-medium mb-4">Monthly Earnings Breakdown</h3>
-      <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={data} layout="vertical">
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis type="number" tickFormatter={(v) => `₹${(v/1000).toFixed(0)}K`} />
-          <YAxis type="category" dataKey="name" width={80} />
-          <Tooltip formatter={(value) => formatCurrency(value)} />
-          <Legend />
-          {Object.keys(data[0]).filter(k => k !== 'name').map((key, index) => (
-            <Bar key={key} dataKey={key} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
-      <div className="mt-4 grid grid-cols-2 gap-4 text-right">
-        <div>
-          <span className="text-sm text-neutral">Monthly Gross: </span>
-          <span className="font-mono font-medium">{formatCurrency(calculations.monthlyGross)}</span>
+    <div className="bg-white p-4 rounded-lg border border-border h-full flex flex-col">
+      <div className="mb-2">
+        <h3 className="font-medium">Monthly Earnings</h3>
+        <p className="text-xs text-neutral">Component-wise breakdown</p>
+      </div>
+      
+      <div className="flex gap-4 flex-1">
+        <div className="flex-1 min-w-0">
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={data} layout="vertical" barGap={2} margin={{ left: 10, right: 10, top: 10, bottom: 10 }}>
+              <CartesianGrid strokeDasharray="3 3" horizontal vertical={false} />
+              <XAxis type="number" tickFormatter={(v) => `₹${(v/1000).toFixed(0)}K`} fontSize={11} />
+              <YAxis type="category" dataKey="name" width={50} fontSize={11} />
+              <Tooltip formatter={(value) => formatCurrency(value)} />
+              {Object.keys(data[0]).filter(k => k !== 'name').map((key, index) => (
+                <Bar key={key} dataKey={key} fill={COLORS[index % COLORS.length]} maxBarSize={18} />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-        <div>
-          <span className="text-sm text-neutral">Employer Costs: </span>
-          <span className="font-mono font-medium">{formatCurrency(calculations.employerPF + calculations.gratuityMonthly + calculations.employerESI)}</span>
+        
+        <div className="w-48 flex flex-col justify-center gap-1">
+          {Object.keys(data[0]).filter(k => k !== 'name').map((key, index) => (
+            <div key={key} className="flex items-center gap-2 text-xs">
+              <div 
+                className="w-3 h-3 rounded-sm flex-shrink-0" 
+                style={{ backgroundColor: COLORS[index % COLORS.length] }}
+              />
+              <span className="text-neutral truncate">{key}</span>
+              <span className="font-mono ml-auto">{formatCurrencyShort(data[0][key] || 0)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="mt-3 pt-3 border-t border-border">
+        <div className="flex justify-between items-center">
+          <div>
+            <span className="text-xs text-neutral">Monthly Gross</span>
+            <p className="font-mono font-medium text-primary">{formatCurrency(monthlyGross)}</p>
+          </div>
+          <div className="text-right">
+            <span className="text-xs text-neutral">Employer Cost</span>
+            <p className="font-mono font-medium text-positive">{formatCurrencyShort(calculations.employerPF + calculations.gratuityMonthly + calculations.employerESI)}</p>
+          </div>
         </div>
       </div>
     </div>

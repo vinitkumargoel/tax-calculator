@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, memo } from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
 import { formatCurrency, formatCurrencyShort } from '../../utils/formatCurrency.js'
@@ -7,12 +7,19 @@ import { ConfirmDialog } from '../shared/ConfirmDialog.jsx'
 import { Select } from '../shared/Select.jsx'
 import { PT_BY_STATE } from '../../constants/ptByState.js'
 
-export const ProfileCard = ({ profile, isActive, onClick }) => {
+export const ProfileCard = memo(({ profile, isActive, onClick }) => {
   const calculations = useSalaryCalculations(profile)
+  
+  if (!calculations) return null
   
   return (
     <div
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      aria-label={`Select profile ${profile.name}`}
+      aria-pressed={isActive}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
       className={`p-3 rounded-lg cursor-pointer transition-all border ${
         isActive 
           ? 'border-primary bg-blue-50' 
@@ -39,7 +46,9 @@ export const ProfileCard = ({ profile, isActive, onClick }) => {
       </div>
     </div>
   )
-}
+})
+
+ProfileCard.displayName = 'ProfileCard'
 
 export const Sidebar = () => {
   const { state, dispatch, activeProfile } = useProfile()
