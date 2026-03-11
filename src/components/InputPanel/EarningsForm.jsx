@@ -1,7 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
-import { CurrencyInput } from '../shared/CurrencyInput.jsx'
-import { InfoTooltip } from '../shared/InfoTooltip.jsx'
+import { CurrencyInput, InfoTooltip } from '../shared/index.js'
 import { Plus, Trash2 } from 'lucide-react'
 
 export const EarningsForm = () => {

@@ -1,7 +1,6 @@
 import React from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
-import { CurrencyInput } from '../shared/CurrencyInput.jsx'
-import { Toggle } from '../shared/Toggle.jsx'
+import { CurrencyInput, Toggle, Select, Checkbox } from '../shared/index.js'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
 import { formatCurrency } from '../../utils/formatCurrency.js'
 import { ChevronDown, ChevronUp } from 'lucide-react'
@@ -208,16 +207,12 @@ export const ExemptionsForm = () => {
             <h4 className="font-medium text-sm mb-3">Section 80D (Medical Insurance)</h4>
             <div className="space-y-3">
               <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <label className="text-xs text-neutral">Self + Family</label>
-                  <input
-                    type="checkbox"
-                    checked={exemptions.section80D?.selfFamilySenior || false}
-                    onChange={(e) => handleUpdateSection80D('selfFamilySenior', e.target.checked)}
-                    className="text-primary"
-                  />
-                  <span className="text-xs text-neutral">Senior (60+)</span>
-                </div>
+                <Checkbox
+                  label="Self + Family (Senior 60+)"
+                  checked={exemptions.section80D?.selfFamilySenior || false}
+                  onChange={(v) => handleUpdateSection80D('selfFamilySenior', v)}
+                  className="mb-2"
+                />
                 <CurrencyInput
                   value={exemptions.section80D?.selfFamily || 0}
                   onChange={(v) => handleUpdateSection80D('selfFamily', v)}
@@ -225,16 +220,12 @@ export const ExemptionsForm = () => {
                 />
               </div>
               <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <label className="text-xs text-neutral">Parents</label>
-                  <input
-                    type="checkbox"
-                    checked={exemptions.section80D?.parentsSenior || false}
-                    onChange={(e) => handleUpdateSection80D('parentsSenior', e.target.checked)}
-                    className="text-primary"
-                  />
-                  <span className="text-xs text-neutral">Senior (60+)</span>
-                </div>
+                <Checkbox
+                  label="Parents (Senior 60+)"
+                  checked={exemptions.section80D?.parentsSenior || false}
+                  onChange={(v) => handleUpdateSection80D('parentsSenior', v)}
+                  className="mb-2"
+                />
                 <CurrencyInput
                   value={exemptions.section80D?.parents || 0}
                   onChange={(v) => handleUpdateSection80D('parents', v)}
@@ -255,17 +246,17 @@ export const ExemptionsForm = () => {
           
           <div className="p-3 bg-gray-50 rounded-md">
             <h4 className="font-medium text-sm mb-3">Home Loan Interest (Section 24(b))</h4>
-            <Toggle
+            <Select
               label="Property Type"
-              options={propertyTypeOptions}
               value={exemptions.homeLoan?.propertyType || 'self-occupied'}
               onChange={(v) => handleUpdateHomeLoan('propertyType', v)}
+              options={propertyTypeOptions}
+              hint={exemptions.homeLoan?.propertyType === 'self-occupied' ? 'Max deduction: ₹2,00,000' : 'No limit for let-out property'}
             />
             <CurrencyInput
               label="Annual Interest Paid"
               value={exemptions.homeLoan?.annualInterest || 0}
               onChange={(v) => handleUpdateHomeLoan('annualInterest', v)}
-              hint={exemptions.homeLoan?.propertyType === 'self-occupied' ? 'Max ₹2,00,000' : 'No limit for let-out'}
             />
           </div>
         </div>

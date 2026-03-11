@@ -1,9 +1,7 @@
 import React from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
-import { CurrencyInput } from '../shared/CurrencyInput.jsx'
-import { InfoTooltip } from '../shared/InfoTooltip.jsx'
-import { Toggle } from '../shared/Toggle.jsx'
+import { CurrencyInput, InfoTooltip, Toggle, Select } from '../shared/index.js'
 import { Plus, Trash2, AlertCircle } from 'lucide-react'
 import { PT_BY_STATE, STATE_OPTIONS } from '../../constants/ptByState.js'
 import { formatCurrency } from '../../utils/formatCurrency.js'
@@ -101,21 +99,13 @@ export const DeductionsForm = () => {
           )}
         </div>
         
-        <div className="p-3 bg-gray-50 rounded-md">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Professional Tax</span>
-            <span className="font-mono text-negative">{formatCurrency(calculations.professionalTax)}</span>
-          </div>
-          <select
-            value={activeProfile?.state || 'none'}
-            onChange={(e) => handleUpdateSettings('state', e.target.value)}
-            className="w-full px-3 py-2 border border-border rounded-md text-sm"
-          >
-            {stateOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label="Professional Tax (State)"
+          value={activeProfile?.state || 'none'}
+          onChange={(v) => handleUpdateSettings('state', v)}
+          options={stateOptions}
+          hint={`Current: ₹${calculations.professionalTax}/mo`}
+        />
         
 <div className="p-3 bg-gray-50 rounded-md">
   <div className="flex items-center justify-between mb-2">
