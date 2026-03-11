@@ -132,7 +132,7 @@ export const RegimeComparison = () => {
                 <tr className={`font-medium ${!isOldRegime ? 'bg-primary/5' : ''}`}>
                   <td className="py-3 text-primary">Monthly In-Hand</td>
                   <td className="text-right py-3 px-3 font-mono text-positive">
-                    {formatCurrencyShort(calculations.monthlyGross - (oldRegimeTax.monthlyTDS + calculations.employeePF + calculations.employeeESI + calculations.professionalTax + calculations.vpf + calculations.npsEmployee))}
+                    {formatCurrencyShort(calculations.monthlyGross - (oldRegimeTax.monthlyTDS + calculations.employeePF + calculations.employeeESI + calculations.professionalTax + calculations.vpf + calculations.npsEmployee + calculations.customDeductions))}
                   </td>
                   <td className="text-right py-3 px-3 font-mono text-positive">
                     {formatCurrencyShort(calculations.monthlyNetInHand)}
@@ -144,7 +144,7 @@ export const RegimeComparison = () => {
           
           {calculations.surchargeWarning && (
             <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-800">
-              ⚠️ Surcharge applies to income above ₹50L and is not calculated here. Please consult a Chartered Accountant.
+              ⚠️ Surcharge applies to your income (above ₹50L) and has been included in the tax calculation. For complex cases with marginal relief, please consult a Chartered Accountant.
             </div>
           )}
         </div>

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateTax, calculateOldRegimeTax, calculateNewRegimeTax } from '../utils/taxCalculator.js'
+import { calculateTax, calculateOldRegimeTax, calculateNewRegimeTax, calculateSeparatedTax } from '../utils/taxCalculator.js'
 
 const createMockProfile = (overrides = {}) => ({
   taxRegime: 'new',
@@ -554,5 +554,216 @@ describe('Tax Calculator - Edge Cases', () => {
     })
     const result = calculateOldRegimeTax(profile, 30000, 0)
     expect(result.taxableIncome).toBeGreaterThanOrEqual(0)
+  })
+})
+
+describe('Tax Calculator - Separated Tax for Bonus/RSU', () => {
+  describe('calculateSeparatedTax', () => {
+    it('should return zero bonus/RSU tax when no one-time income', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const result = calculateSeparatedTax(profile, 100000, 0, 0)
+      expect(result.bonusAmount).toBe(0)
+      expect(result.bonusTax).toBe(0)
+      expect(result.rsuAmount).toBe(0)
+      expect(result.rsuTax).toBe(0)
+      expect(result.oneTimeTax).toBe(0)
+    })
+
+    it('should calculate bonus tax at marginal rate', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 100000
+      const bonus = 200000
+      const result = calculateSeparatedTax(profile, monthlyGross, bonus, 0)
+      
+      expect(result.bonusAmount).toBe(bonus)
+      expect(result.bonusTax).toBeGreaterThan(0)
+      expect(result.marginalRate).toBeGreaterThan(0)
+      expect(result.totalTaxWithOneTime).toBe(result.totalTax + result.oneTimeTax)
+    })
+
+    it('should calculate RSU tax at marginal rate', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 100000
+      const rsuValue = 500000
+      const result = calculateSeparatedTax(profile, monthlyGross, 0, rsuValue)
+      
+      expect(result.rsuAmount).toBe(rsuValue)
+      expect(result.rsuTax).toBeGreaterThan(0)
+      expect(result.marginalRate).toBeGreaterThan(0)
+    })
+
+    it('should separate one-time income from regular monthly TDS', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 100000
+      const bonus = 200000
+      
+      const regularResult = calculateNewRegimeTax(profile, monthlyGross, 0)
+      const separatedResult = calculateSeparatedTax(profile, monthlyGross, bonus, 0)
+      
+      expect(separatedResult.regularMonthlyTDS).toBe(regularResult.monthlyTDS)
+      expect(separatedResult.bonusTax).toBeGreaterThan(0)
+    })
+
+    it('should apply cess on bonus tax', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 100000
+      const bonus = 200000
+      const result = calculateSeparatedTax(profile, monthlyGross, bonus, 0)
+
+      // Bonus tax includes cess: bonusTax should be greater than tax-only portion
+      // Verify it is positive and that the oneTimeTax accounts for cess (4% on top)
+      expect(result.bonusTax).toBeGreaterThan(0)
+      // The one-time tax total must equal bonus tax when only bonus is present
+      expect(result.oneTimeTax).toBe(result.bonusTax)
+      // Rough sanity: bonusTax should be less than bonus itself
+      expect(result.bonusTax).toBeLessThan(bonus)
+    })
+
+    it('should apply cess on RSU tax', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 100000
+      const rsuValue = 300000
+      const result = calculateSeparatedTax(profile, monthlyGross, 0, rsuValue)
+
+      // RSU tax includes cess
+      expect(result.rsuTax).toBeGreaterThan(0)
+      // The one-time tax total must equal RSU tax when only RSU is present
+      expect(result.oneTimeTax).toBe(result.rsuTax)
+      // Rough sanity: rsuTax should be less than rsuValue
+      expect(result.rsuTax).toBeLessThan(rsuValue)
+    })
+
+    it('should calculate correct marginal rate based on taxable income', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      
+      const lowIncome = calculateSeparatedTax(profile, 30000, 0, 0)
+      const midIncome = calculateSeparatedTax(profile, 100000, 0, 0)
+      const highIncome = calculateSeparatedTax(profile, 300000, 0, 0)
+      
+      expect(lowIncome.marginalRate).toBeLessThanOrEqual(midIncome.marginalRate)
+      expect(midIncome.marginalRate).toBeLessThanOrEqual(highIncome.marginalRate)
+    })
+
+    it('should sum one-time tax correctly', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 100000
+      const bonus = 100000
+      const rsuValue = 200000
+      const result = calculateSeparatedTax(profile, monthlyGross, bonus, rsuValue)
+      
+      expect(result.oneTimeIncome).toBe(bonus + rsuValue)
+      expect(result.oneTimeTax).toBe(result.bonusTax + result.rsuTax)
+    })
+
+    it('should report regular annual income without bonus/RSU', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 100000
+      const bonus = 200000
+      const rsuValue = 300000
+      const result = calculateSeparatedTax(profile, monthlyGross, bonus, rsuValue)
+      
+      expect(result.regularAnnualIncome).toBe(monthlyGross * 12)
+      expect(result.annualGross).toBe(monthlyGross * 12 + bonus + rsuValue)
+      expect(result.oneTimeIncome).toBe(bonus + rsuValue)
+    })
+
+    it('should work with old regime', () => {
+      const profile = createMockProfile({ taxRegime: 'old' })
+      const monthlyGross = 80000
+      const bonus = 150000
+      const result = calculateSeparatedTax(profile, monthlyGross, bonus, 0)
+      
+      expect(result.bonusAmount).toBe(bonus)
+      expect(result.bonusTax).toBeGreaterThan(0)
+      expect(result.regime).toBe('old')
+    })
+
+    it('should handle bonus only without RSU', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 100000
+      const bonus = 100000
+      const result = calculateSeparatedTax(profile, monthlyGross, bonus, 0)
+      
+      expect(result.regularAnnualIncome).toBe(monthlyGross * 12)
+      expect(result.bonusAmount).toBe(bonus)
+      expect(result.rsuAmount).toBe(0)
+    })
+
+    it('should not change regular monthly TDS with bonus added', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 100000
+      
+      const resultNoBonus = calculateSeparatedTax(profile, monthlyGross, 0, 0)
+      const resultWithBonus = calculateSeparatedTax(profile, monthlyGross, 500000, 0)
+      
+      expect(resultNoBonus.regularMonthlyTDS).toBe(resultWithBonus.regularMonthlyTDS)
+      expect(resultNoBonus.totalTax).toBe(resultWithBonus.totalTax)
+    })
+
+    it('should correctly total tax when one-time income exists', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 100000
+      const bonus = 200000
+      const rsu = 300000
+      const result = calculateSeparatedTax(profile, monthlyGross, bonus, rsu)
+      
+      expect(result.totalTaxWithOneTime).toBe(result.totalTax + result.oneTimeTax)
+      expect(result.oneTimeTax).toBe(result.bonusTax + result.rsuTax)
+    })
+
+    it('should apply marginal rate based on taxable income after deductions', () => {
+      const profile = createMockProfile({ 
+        taxRegime: 'old',
+        exemptions: { 
+          section80C: { pf: 150000 },
+          section80D: { selfFamily: 25000, parents: 25000, selfFamilySenior: false, parentsSenior: false },
+          nps80CCD1B: 50000,
+        }
+      })
+      const result = calculateSeparatedTax(profile, 80000, 100000, 0)
+      
+      expect(result.marginalRate).toBeGreaterThan(0)
+      expect(result.bonusTax).toBeGreaterThan(0)
+    })
+
+    it('should use 30% marginal rate for high income earners', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 300000
+      const result = calculateSeparatedTax(profile, monthlyGross, 500000, 0)
+      
+      expect(result.marginalRate).toBe(30)
+    })
+
+    it('should use 5% marginal rate for income in first tax slab', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const monthlyGross = 40000
+      const result = calculateSeparatedTax(profile, monthlyGross, 50000, 0)
+      
+      expect(result.marginalRate).toBe(5)
+    })
+
+    it('should handle zero bonus and zero RSU', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      const result = calculateSeparatedTax(profile, 100000, 0, 0)
+      
+      expect(result.bonusAmount).toBe(0)
+      expect(result.bonusTax).toBe(0)
+      expect(result.rsuAmount).toBe(0)
+      expect(result.rsuTax).toBe(0)
+      expect(result.oneTimeIncome).toBe(0)
+      expect(result.oneTimeTax).toBe(0)
+      expect(result.totalTaxWithOneTime).toBe(result.totalTax)
+    })
+
+    it('should correctly update surcharge warning based on total income', () => {
+      const profile = createMockProfile({ taxRegime: 'new' })
+      
+      const resultBelowThreshold = calculateSeparatedTax(profile, 350000, 0, 0)
+      expect(resultBelowThreshold.surchargeWarning).toBe(false)
+      
+      const resultAboveThreshold = calculateSeparatedTax(profile, 400000, 0, 1500000)
+      expect(resultAboveThreshold.surchargeWarning).toBe(true)
+      expect(resultAboveThreshold.annualGross).toBeGreaterThan(5000000)
+    })
   })
 })

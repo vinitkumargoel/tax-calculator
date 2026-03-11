@@ -124,7 +124,7 @@ function App() {
           
           <footer className="mt-4 text-xs text-neutral text-center print:hidden">
             <p>⚠️ This calculator provides estimates. For exact figures, consult a Chartered Accountant.</p>
-            <p>Surcharge (income &gt; ₹50L), marginal relief, and mid-year ESI transitions not calculated.</p>
+            <p>Surcharge (income &gt; ₹50L) is now calculated. Marginal relief and mid-year ESI transitions are not modelled — consult a CA for exact figures.</p>
           </footer>
         </div>
       </main>

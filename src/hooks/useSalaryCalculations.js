@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { calculatePF } from '../utils/pfCalculator.js'
 import { calculateGratuity } from '../utils/gratuityCalculator.js'
 import { calculateESI } from '../utils/esiCalculator.js'
-import { calculateTax, calculateOldRegimeTax, calculateNewRegimeTax } from '../utils/taxCalculator.js'
+import { calculateTax, calculateOldRegimeTax, calculateNewRegimeTax, calculateSeparatedTax } from '../utils/taxCalculator.js'
 import { PT_BY_STATE } from '../constants/ptByState.js'
 
 export const useSalaryCalculations = (profile) => {
@@ -53,13 +53,14 @@ export const useSalaryCalculations = (profile) => {
     
     const customDeductions = (profile?.deductions?.custom || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
     
-    const taxResult = calculateTax(profile, monthlyGross, bonus + rsuAnnualValue)
-    const monthlyTDS = taxResult.monthlyTDS
+    const taxResult = calculateSeparatedTax(profile, monthlyGross, bonus, rsuAnnualValue)
+    
+    const monthlyTDS = taxResult.regularMonthlyTDS
     
     const monthlyDeductions = employeePF + employeeESI + professionalTax + monthlyTDS + npsEmployee + vpf + customDeductions
     
     const monthlyNetInHand = monthlyGross - monthlyDeductions
-    const annualNetInHand = (monthlyNetInHand * 12) + bonus + rsuAnnualValue
+    const annualNetInHand = (monthlyNetInHand * 12) + bonus - taxResult.bonusTax + rsuAnnualValue - taxResult.rsuTax
     
     const employerNPS = Number(profile?.deductions?.npsEmployer) || 0
     const groupInsurance = Number(earnings.groupInsurance) || 0
@@ -86,8 +87,16 @@ export const useSalaryCalculations = (profile) => {
       npsEmployee,
       customDeductions,
       monthlyTDS,
+      bonusAmount: taxResult.bonusAmount,
+      bonusTax: taxResult.bonusTax,
+      rsuAmount: taxResult.rsuAmount,
+      rsuTax: taxResult.rsuTax,
+      oneTimeIncome: taxResult.oneTimeIncome,
+      oneTimeTax: taxResult.oneTimeTax,
       totalTax: taxResult.totalTax,
-      effectiveTaxRate: annualGross > 0 ? (taxResult.totalTax / annualGross) * 100 : 0,
+      totalTaxWithOneTime: taxResult.totalTaxWithOneTime,
+      marginalRate: taxResult.marginalRate,
+      effectiveTaxRate: annualGross > 0 ? (taxResult.totalTaxWithOneTime / annualGross) * 100 : 0,
       takeHomePercent: annualCTC > 0 ? (annualNetInHand / annualCTC) * 100 : 0,
       employerNPS,
       groupInsurance: earnings.groupInsurance || 0,

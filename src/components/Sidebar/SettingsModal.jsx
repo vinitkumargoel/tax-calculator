@@ -52,7 +52,7 @@ export const SettingsModal = ({ isOpen, onClose }) => {
           <Toggle
             options={taxRegimeOptions}
             value={activeProfile.taxRegime || 'new'}
-            onChange={(v) => dispatch({ type: 'UPDATE_TAX_REGIME', payload: v })}
+            onChange={(v) => handleSettingsChange('taxRegime', v)}
           />
           <p className="text-xs text-neutral mt-2">
             {activeProfile.taxRegime === 'new' 
@@ -100,7 +100,8 @@ export const SettingsModal = ({ isOpen, onClose }) => {
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
           <h4 className="font-medium text-sm mb-2">Quick Tips</h4>
           <ul className="text-xs text-neutral space-y-1">
-            <li>• Metro cities: Delhi, Mumbai, Chennai, Kolkata, Bangalore, Hyderabad, Pune, etc.</li>
+            <li>• Metro cities (50% HRA): Delhi, Mumbai, Chennai, Kolkata only</li>
+            <li>• Non-Metro (40% HRA): Bengaluru, Hyderabad, Pune, and all other cities</li>
             <li>• PF capped mode is standard for most companies</li>
             <li>• New regime is beneficial if you don\'t have many deductions</li>
             <li>• Old regime allows HRA, 80C, 80D, NPS, Home Loan deductions</li>
