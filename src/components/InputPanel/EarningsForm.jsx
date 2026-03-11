@@ -54,21 +54,17 @@ export const EarningsForm = () => {
           hint="Usually 40-50% of CTC"
         />
         
-        <div className="flex gap-2 items-end">
-          <div className="flex-1">
-            <CurrencyInput
-              label="HRA"
-              value={earnings.hra || 0}
-              onChange={(v) => handleChange('hra', v)}
-            />
-          </div>
-          <button
-            onClick={handleHraAuto}
-            className="px-3 py-2 text-xs bg-gray-100 rounded-md hover:bg-gray-200 whitespace-nowrap"
-          >
-            Auto (50%/40%)
-          </button>
-        </div>
+        <CurrencyInput
+          label="HRA"
+          value={earnings.hra || 0}
+          onChange={(v) => handleChange('hra', v)}
+        />
+        <button
+          onClick={handleHraAuto}
+          className="w-full py-1.5 text-xs bg-gray-50 border border-border rounded-md hover:bg-gray-100 -mt-2 mb-4"
+        >
+          Auto-fill HRA (50% of Basic for Metro, 40% for Non-Metro)
+        </button>
         
         <CurrencyInput
           label="DA (Dearness Allowance)"
@@ -113,28 +109,30 @@ export const EarningsForm = () => {
         />
         
         {(earnings.custom || []).map((item) => (
-          <div key={item.id} className="flex gap-2 items-end">
-            <div className="flex-1">
-              <input
-                type="text"
-                value={item.label}
-                onChange={(e) => handleUpdateCustomEarning(item.id, 'label', e.target.value)}
-                className="w-full px-3 py-2 border border-border rounded-md text-sm"
-                placeholder="Label"
-              />
+          <div key={item.id} className="space-y-2">
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <label className="block text-sm text-neutral mb-1">Label</label>
+                <input
+                  type="text"
+                  value={item.label}
+                  onChange={(e) => handleUpdateCustomEarning(item.id, 'label', e.target.value)}
+                  className="w-full px-3 py-2 border border-border rounded-md text-sm"
+                  placeholder="Custom earning name"
+                />
+              </div>
+              <button
+                onClick={() => handleRemoveCustomEarning(item.id)}
+                className="p-2 text-negative hover:bg-red-50 rounded self-end mb-0.5"
+              >
+                <Trash2 size={16} />
+              </button>
             </div>
-            <div className="w-32">
-              <CurrencyInput
-                value={item.amount}
-                onChange={(v) => handleUpdateCustomEarning(item.id, 'amount', v)}
-              />
-            </div>
-            <button
-              onClick={() => handleRemoveCustomEarning(item.id)}
-              className="p-2 text-negative hover:bg-red-50 rounded"
-            >
-              <Trash2 size={16} />
-            </button>
+            <CurrencyInput
+              label="Amount"
+              value={item.amount}
+              onChange={(v) => handleUpdateCustomEarning(item.id, 'amount', v)}
+            />
           </div>
         ))}
         

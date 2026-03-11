@@ -100,11 +100,9 @@ function App() {
           
           <ExemptionsForm />
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
             <BreakdownDonut />
-            <div className="md:col-span-2">
-              <ComponentsBar />
-            </div>
+            <ComponentsBar />
           </div>
           
           <Section80CBar />
