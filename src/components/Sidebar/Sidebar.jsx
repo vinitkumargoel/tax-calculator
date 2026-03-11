@@ -1,8 +1,8 @@
-import React, { useState, memo } from 'react'
+import React, { useState, memo, useRef } from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
 import { formatCurrency, formatCurrencyShort } from '../../utils/formatCurrency.js'
-import { Briefcase, Trash2, Copy, ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon, Plus, Settings } from 'lucide-react'
+import { Briefcase, Trash2, Copy, ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon, Plus, Settings, Download, Upload } from 'lucide-react'
 import { ConfirmDialog } from '../shared/ConfirmDialog.jsx'
 import { SettingsModal } from './SettingsModal.jsx'
 
@@ -54,9 +54,56 @@ export const Sidebar = ({ collapsed, onToggleCollapse }) => {
   const { profiles, saving } = state
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, profileId: null, profileName: '' })
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const fileInputRef = useRef(null)
   
   const handleCreateProfile = () => {
     dispatch({ type: 'CREATE_PROFILE' })
+  }
+  
+  const handleImportClick = () => {
+    fileInputRef.current?.click()
+  }
+  
+  const handleImportFile = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result)
+        if (data.id && data.name && data.earnings && data.deductions && data.exemptions) {
+          const newProfile = {
+            ...data,
+            id: crypto.randomUUID(),
+            name: data.name + ' (Imported)',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }
+          dispatch({ type: 'IMPORT_PROFILE', payload: newProfile })
+        } else {
+          alert('Invalid profile file format')
+        }
+      } catch (err) {
+        alert('Failed to parse profile file')
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
+  
+  const handleExport = () => {
+    if (!activeProfile) return
+    const dataStr = JSON.stringify(activeProfile, null, 2)
+    const blob = new Blob([dataStr], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${activeProfile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_profile.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
   }
   
   const handleDeleteClick = (e, profileId, profileName) => {
@@ -165,6 +212,23 @@ export const Sidebar = ({ collapsed, onToggleCollapse }) => {
         </button>
         
         <button
+          onClick={handleImportClick}
+          disabled={!activeProfile}
+          className={`border border-border bg-white rounded-md text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${collapsed ? 'w-10 h-10 mx-auto' : 'w-full py-2 px-4 gap-2'}`}
+          title={collapsed ? 'Import Profile' : undefined}
+        >
+          <Upload size={16} />
+          {!collapsed && <span>Import</span>}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleImportFile}
+          className="hidden"
+        />
+        
+        <button
           onClick={() => setSettingsOpen(true)}
           disabled={!activeProfile}
           className={`border border-border bg-white rounded-md text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${collapsed ? 'w-10 h-10 mx-auto' : 'w-full py-2 px-4 gap-2'}`}
@@ -172,6 +236,16 @@ export const Sidebar = ({ collapsed, onToggleCollapse }) => {
         >
           <Settings size={16} />
           {!collapsed && <span>Settings</span>}
+        </button>
+        
+        <button
+          onClick={handleExport}
+          disabled={!activeProfile}
+          className={`border border-border bg-white rounded-md text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${collapsed ? 'w-10 h-10 mx-auto' : 'w-full py-2 px-4 gap-2'}`}
+          title={collapsed ? 'Export Profile' : undefined}
+        >
+          <Download size={16} />
+          {!collapsed && <span>Export</span>}
         </button>
       </div>
       

@@ -115,6 +115,14 @@ const profileReducer = (state, action) => {
       }
     }
     
+    case 'IMPORT_PROFILE': {
+      return {
+        ...state,
+        profiles: [...state.profiles, action.payload],
+        activeProfileId: action.payload.id,
+      }
+    }
+    
     case 'RENAME_PROFILE': {
       return {
         ...state,
