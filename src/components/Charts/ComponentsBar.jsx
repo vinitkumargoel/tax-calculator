@@ -11,17 +11,20 @@ export const ComponentsBar = () => {
   
   const data = [
     { 
-      name: 'Earnings',
+      name: 'Monthly',
       Basic: earnings.basic || 0,
       HRA: earnings.hra || 0,
       DA: earnings.da || 0,
-      'LTA (mo)': (earnings.lta || 0) / 12,
       'Special Allowance': earnings.specialAllowance || 0,
       Medical: earnings.medicalAllowance || 0,
+      'Other': ((earnings.lta || 0) / 12) + (earnings.custom || []).reduce((sum, c) => sum + (Number(c.amount) || 0), 0),
+      'Employer PF': calculations.employerPF,
+      Gratuity: calculations.gratuityMonthly,
+      'Employer ESI': calculations.employerESI,
     },
   ]
   
-  const COLORS = ['#1A56DB', '#0E9F6E', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6']
+  const COLORS = ['#1A56DB', '#0E9F6E', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#FCD34D', '#10B981', '#A78BFA']
   
   return (
     <div className="bg-white p-4 rounded-lg border border-border">
@@ -38,9 +41,15 @@ export const ComponentsBar = () => {
           ))}
         </BarChart>
       </ResponsiveContainer>
-      <div className="mt-4 text-right">
-        <span className="text-sm text-neutral">Total Monthly Gross: </span>
-        <span className="font-mono font-medium">{formatCurrency(calculations.monthlyGross)}</span>
+      <div className="mt-4 grid grid-cols-2 gap-4 text-right">
+        <div>
+          <span className="text-sm text-neutral">Monthly Gross: </span>
+          <span className="font-mono font-medium">{formatCurrency(calculations.monthlyGross)}</span>
+        </div>
+        <div>
+          <span className="text-sm text-neutral">Employer Costs: </span>
+          <span className="font-mono font-medium">{formatCurrency(calculations.employerPF + calculations.gratuityMonthly + calculations.employerESI)}</span>
+        </div>
       </div>
     </div>
   )

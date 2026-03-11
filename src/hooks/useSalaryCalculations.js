@@ -81,6 +81,8 @@ export const useSalaryCalculations = (profile) => {
       totalTax: taxResult.totalTax,
       effectiveTaxRate: annualGross > 0 ? (taxResult.totalTax / annualGross) * 100 : 0,
       takeHomePercent: annualCTC > 0 ? (annualNetInHand / annualCTC) * 100 : 0,
+      employerNPS,
+      groupInsurance: earnings.groupInsurance || 0,
       taxResult,
       oldRegimeTax,
       newRegimeTax,

@@ -9,12 +9,10 @@ export const BreakdownDonut = () => {
   
   const data = [
     { name: 'In-Hand', value: calculations.annualNetInHand, color: '#0E9F6E' },
-    { name: 'Tax', value: calculations.totalTax, color: '#E02424' },
-    { name: 'PF (Employee)', value: calculations.employeePF * 12, color: '#F59E0B' },
-    { name: 'ESI (Employee)', value: calculations.employeeESI * 12, color: '#8B5CF6' },
-    { name: 'Professional Tax', value: calculations.professionalTax * 12, color: '#EC4899' },
-    { name: 'NPS (Employee)', value: calculations.npsEmployee * 12, color: '#6366F1' },
-    { name: 'VPF', value: calculations.vpf * 12, color: '#14B8A6' },
+    { name: 'Total Deductions', value: (calculations.employeePF + calculations.employeeESI + calculations.professionalTax + calculations.monthlyTDS + calculations.npsEmployee + calculations.vpf) * 12, color: '#E02424' },
+    { name: 'Employer PF', value: calculations.employerPF * 12, color: '#F59E0B' },
+    { name: 'Gratuity', value: calculations.gratuityAnnual, color: '#10B981' },
+    { name: 'Employer ESI', value: calculations.employerESI * 12, color: '#8B5CF6' },
   ].filter(item => item.value > 0)
   
   if (data.length === 0 || calculations.annualGross === 0) {
@@ -46,9 +44,10 @@ export const BreakdownDonut = () => {
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip 
-            formatter={(value) => `₹${(value / 100000).toFixed(2)}L`}
-          />
+      <Tooltip 
+        formatter={(value) => `₹${(value / 100000).toFixed(2)}L`}
+      />
+      <p className="text-xs text-neutral mt-2 text-center">Shows Earnings vs Deductions vs Employer Costs</p>
           <Legend 
             formatter={(value) => <span className="text-sm text-neutral">{value}</span>}
           />

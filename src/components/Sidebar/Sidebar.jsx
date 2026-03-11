@@ -1,8 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
 import { formatCurrency, formatCurrencyShort } from '../../utils/formatCurrency.js'
-import { Briefcase, Trash2, Copy, ChevronRight } from 'lucide-react'
+import { Briefcase, Trash2, Copy, ChevronRight, Settings } from 'lucide-react'
+import { ConfirmDialog } from '../shared/ConfirmDialog.jsx'
+import { Select } from '../shared/Select.jsx'
+import { PT_BY_STATE } from '../../constants/ptByState.js'
 
 export const ProfileCard = ({ profile, isActive, onClick }) => {
   const calculations = useSalaryCalculations(profile)
@@ -41,16 +44,19 @@ export const ProfileCard = ({ profile, isActive, onClick }) => {
 export const Sidebar = () => {
   const { state, dispatch, activeProfile } = useProfile()
   const { profiles, saving } = state
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, profileId: null, profileName: '' })
   
   const handleCreateProfile = () => {
     dispatch({ type: 'CREATE_PROFILE' })
   }
   
-  const handleDeleteProfile = (e, profileId) => {
+  const handleDeleteClick = (e, profileId, profileName) => {
     e.stopPropagation()
-    if (window.confirm('Are you sure you want to delete this profile?')) {
-      dispatch({ type: 'DELETE_PROFILE', payload: profileId })
-    }
+    setDeleteConfirm({ isOpen: true, profileId, profileName })
+  }
+  
+  const handleDeleteConfirm = () => {
+    dispatch({ type: 'DELETE_PROFILE', payload: deleteConfirm.profileId })
   }
   
   const handleDuplicateProfile = (e, profileId) => {
@@ -61,6 +67,25 @@ export const Sidebar = () => {
   const handleSelectProfile = (profileId) => {
     dispatch({ type: 'SET_ACTIVE_PROFILE', payload: profileId })
   }
+  
+  const handleSettingsChange = (field, value) => {
+    dispatch({ type: 'UPDATE_SETTINGS', payload: { [field]: value } })
+  }
+  
+  const stateOptions = Object.keys(PT_BY_STATE).map(key => ({
+    value: key,
+    label: PT_BY_STATE[key].name
+  }))
+  
+  const cityTypeOptions = [
+    { value: 'metro', label: 'Metro' },
+    { value: 'non-metro', label: 'Non-Metro' },
+  ]
+  
+  const pfModeOptions = [
+    { value: 'capped', label: 'Capped at ₹15,000' },
+    { value: 'full', label: 'Full Basic' },
+  ]
   
   return (
     <aside className="w-64 bg-white border-r border-border h-screen overflow-y-auto flex flex-col">
@@ -97,7 +122,7 @@ export const Sidebar = () => {
                   <Copy size={14} className="text-neutral" />
                 </button>
                 <button
-                  onClick={(e) => handleDeleteProfile(e, profile.id)}
+                  onClick={(e) => handleDeleteClick(e, profile.id, profile.name)}
                   className="p-1 bg-white rounded hover:bg-gray-100"
                   title="Delete"
                 >
@@ -120,12 +145,61 @@ export const Sidebar = () => {
       
       {activeProfile && (
         <div className="p-3 border-t border-border bg-gray-50">
-          <h3 className="text-xs font-medium text-neutral mb-2">Settings</h3>
-          <p className="text-xs text-neutral">State: {activeProfile.state || 'Not set'}</p>
-          <p className="text-xs text-neutral">City: {activeProfile.cityType || 'metro'}</p>
-          <p className="text-xs text-neutral">PF Mode: {activeProfile.pfMode || 'capped'}</p>
+          <div className="flex items-center gap-2 mb-3">
+            <Settings size={16} className="text-neutral" />
+            <h3 className="text-xs font-medium text-neutral">Settings</h3>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs text-neutral mb-1">State (for PT)</label>
+              <select
+                value={activeProfile.state || 'none'}
+                onChange={(e) => handleSettingsChange('state', e.target.value)}
+                className="w-full px-2 py-1 text-xs border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                {stateOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-neutral mb-1">City Type (HRA)</label>
+              <select
+                value={activeProfile.cityType || 'metro'}
+                onChange={(e) => handleSettingsChange('cityType', e.target.value)}
+                className="w-full px-2 py-1 text-xs border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                {cityTypeOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-neutral mb-1">PF Mode</label>
+              <select
+                value={activeProfile.pfMode || 'capped'}
+                onChange={(e) => handleSettingsChange('pfMode', e.target.value)}
+                className="w-full px-2 py-1 text-xs border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                {pfModeOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
       )}
+      
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, profileId: null, profileName: '' })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Profile"
+        message={`Are you sure you want to delete "${deleteConfirm.profileName}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </aside>
   )
 }

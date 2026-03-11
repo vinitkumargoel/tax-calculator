@@ -25,6 +25,7 @@ const createDefaultProfile = () => ({
   deductions: {
     vpf: 0,
     npsEmployee: 0,
+    npsEmployer: 0,
     custom: [],
   },
   exemptions: {

@@ -117,12 +117,41 @@ export const DeductionsForm = () => {
           </select>
         </div>
         
-        <CurrencyInput
-          label="NPS (Employee 80CCD(1B))"
-          value={deductions.npsEmployee || 0}
-          onChange={(v) => handleUpdateDeductions('npsEmployee', v)}
-          hint="Up to ₹50,000 deduction (Old Regime)"
-        />
+<div className="p-3 bg-gray-50 rounded-md">
+  <div className="flex items-center justify-between mb-2">
+    <span className="text-sm font-medium">PF Breakdown</span>
+    <span className="font-mono text-primary">{formatCurrency(calculations.employerPF)}</span>
+  </div>
+  <div className="grid grid-cols-2 gap-2 text-xs">
+    <div className="bg-white p-2 rounded border border-border">
+      <p className="text-neutral">Employer PF (3.67%)</p>
+      <p className="font-mono text-positive">{formatCurrency(Math.min((activeProfile?.earnings?.basic || 0) * 0.0367, activeProfile?.pfMode === 'capped' ? 550 : Infinity))}/mo</p>
+    </div>
+    <div className="bg-white p-2 rounded border border-border">
+      <p className="text-neutral">EPS (8.33%)</p>
+      <p className="font-mono text-primary">{formatCurrency(Math.min((activeProfile?.earnings?.basic || 0) * 0.0833, activeProfile?.pfMode === 'capped' ? 1250 : Infinity))}/mo</p>
+    </div>
+  </div>
+  <p className="text-xs text-neutral mt-2">
+    {activeProfile?.pfMode === 'capped' 
+      ? 'Capped at ₹15,000 basic for EPS'
+      : 'Applied on full Basic'}
+  </p>
+</div>
+
+<CurrencyInput
+  label="NPS (Employee 80CCD(1B))"
+  value={deductions.npsEmployee || 0}
+  onChange={(v) => handleUpdateDeductions('npsEmployee', v)}
+  hint="Up to ₹50,000 deduction (Old Regime)"
+/>
+
+<CurrencyInput
+  label="NPS (Employer contribution)"
+  value={deductions.npsEmployer || 0}
+  onChange={(v) => handleUpdateDeductions('npsEmployer', v)}
+  hint="Employer cost, added to CTC"
+/>
         
         {(deductions.custom || []).map((item) => (
           <div key={item.id} className="flex gap-2 items-end">
