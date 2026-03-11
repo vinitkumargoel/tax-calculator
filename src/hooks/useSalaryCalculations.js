@@ -53,13 +53,13 @@ export const useSalaryCalculations = (profile) => {
     
     const customDeductions = (profile?.deductions?.custom || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
     
-    const taxResult = calculateTax(profile, monthlyGross, bonus)
+    const taxResult = calculateTax(profile, monthlyGross, bonus + rsuAnnualValue)
     const monthlyTDS = taxResult.monthlyTDS
     
     const monthlyDeductions = employeePF + employeeESI + professionalTax + monthlyTDS + npsEmployee + vpf + customDeductions
     
     const monthlyNetInHand = monthlyGross - monthlyDeductions
-    const annualNetInHand = monthlyNetInHand * 12
+    const annualNetInHand = (monthlyNetInHand * 12) + bonus + rsuAnnualValue
     
     const employerNPS = Number(profile?.deductions?.npsEmployer) || 0
     const groupInsurance = Number(earnings.groupInsurance) || 0

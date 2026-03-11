@@ -208,7 +208,7 @@ export const Sidebar = ({ collapsed, onToggleCollapse }) => {
           title={collapsed ? 'New Profile' : undefined}
         >
           <Plus size={16} />
-          {!collapsed && <span>+ New Profile</span>}
+          {!collapsed && <span>New Profile</span>}
         </button>
         
         <button
