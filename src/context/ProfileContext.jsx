@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react'
+import React, { createContext, useContext, useReducer, useEffect, useState, useRef } from 'react'
 import { validateProfile } from '../utils/validation.js'
+
+const STORAGE_KEY = 'salary_profiles'
 
 const createDefaultProfile = () => ({
   id: crypto.randomUUID(),
@@ -278,6 +280,7 @@ const ProfileContext = createContext(null)
 export const ProfileProvider = ({ children }) => {
   const [state, dispatch] = useReducer(profileReducer, initialState)
   const [loaded, setLoaded] = useState(false)
+  const saveTimeoutRef = useRef(null)
   
   useEffect(() => {
     try {
@@ -299,9 +302,14 @@ export const ProfileProvider = ({ children }) => {
     setLoaded(true)
   }, [])
   
-  const debouncedSave = useCallback(() => {
-    dispatch({ type: 'SET_SAVING', payload: true })
-    const timeoutId = setTimeout(() => {
+  useEffect(() => {
+    if (!loaded) return
+    
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+    
+    saveTimeoutRef.current = setTimeout(() => {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           profiles: state.profiles,
@@ -310,16 +318,14 @@ export const ProfileProvider = ({ children }) => {
       } catch (e) {
         console.error('Error saving to localStorage:', e)
       }
-      dispatch({ type: 'SET_SAVING', payload: false })
     }, 500)
     
-    return () => clearTimeout(timeoutId)
-  }, [state.profiles, state.activeProfileId])
-  
-  useEffect(() => {
-    if (!loaded) return
-    debouncedSave()
-  }, [state.profiles, state.activeProfileId, loaded, debouncedSave])
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+    }
+  }, [state.profiles, state.activeProfileId, loaded])
   
   const activeProfile = state.profiles.find(p => p.id === state.activeProfileId)
   
