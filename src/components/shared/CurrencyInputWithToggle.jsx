@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
 export const CurrencyInputWithToggle = ({ 
   value, 
@@ -10,26 +10,58 @@ export const CurrencyInputWithToggle = ({
   className = '' 
 }) => {
   const [isAnnual, setIsAnnual] = useState(defaultMode === 'annual')
+  const [inputValue, setInputValue] = useState('')
+  const [isEditing, setIsEditing] = useState(false)
+  const inputRef = useRef(null)
   
-  const monthlyToAnnual = (val) => Math.round(val * 12)
-  const annualToMonthly = (val) => Math.round(val / 12)
-  
-  const displayValue = isAnnual 
-    ? (value === 0 ? '' : monthlyToAnnual(value))
-    : (value === 0 ? '' : value)
+  useEffect(() => {
+    if (!isEditing) {
+      const displayValue = isAnnual ? Math.round(value * 12) : value
+      setInputValue(displayValue === 0 ? '' : new Intl.NumberFormat('en-IN').format(displayValue))
+    }
+  }, [value, isAnnual, isEditing])
   
   const handleChange = (e) => {
     const rawValue = e.target.value.replace(/[^\d]/g, '')
-    const numValue = rawValue === '' ? 0 : parseInt(rawValue, 10)
-    const finalValue = isAnnual ? annualToMonthly(numValue) : numValue
-    onChange(finalValue)
+    
+    if (rawValue === '') {
+      setInputValue('')
+      onChange(0)
+    } else {
+      const numValue = parseInt(rawValue, 10)
+      const formatted = new Intl.NumberFormat('en-IN').format(numValue)
+      setInputValue(formatted)
+      
+      const finalValue = isAnnual ? Math.round(numValue / 12) : numValue
+      onChange(finalValue)
+    }
   }
   
   const handleToggle = (newIsAnnual) => {
-    setIsAnnual(newIsAnnual)
+    if (newIsAnnual !== isAnnual) {
+      const currentMonthlyValue = value
+      const newDisplayValue = newIsAnnual 
+        ? Math.round(currentMonthlyValue * 12) 
+        : currentMonthlyValue
+      
+      setInputValue(newDisplayValue === 0 ? '' : new Intl.NumberFormat('en-IN').format(newDisplayValue))
+      setIsAnnual(newIsAnnual)
+    }
   }
   
-  const formattedValue = displayValue === '' ? '' : new Intl.NumberFormat('en-IN').format(displayValue)
+  const handleFocus = () => {
+    setIsEditing(true)
+    const displayValue = isAnnual ? Math.round(value * 12) : value
+    if (displayValue > 0) {
+      setInputValue(String(displayValue))
+    }
+  }
+  
+  const handleBlur = () => {
+    setIsEditing(false)
+    const displayValue = isAnnual ? Math.round(value * 12) : value
+    setInputValue(displayValue === 0 ? '' : new Intl.NumberFormat('en-IN').format(displayValue))
+  }
   
   const toggleOptions = [
     { label: 'Monthly', value: false },
@@ -46,11 +78,12 @@ export const CurrencyInputWithToggle = ({
               key={option.label}
               type="button"
               onClick={() => handleToggle(option.value)}
+              disabled={disabled}
               className={`px-2 py-0.5 text-xs font-medium transition-colors ${
                 isAnnual === option.value
                   ? 'bg-primary text-white'
                   : 'bg-white text-neutral hover:bg-gray-50'
-              }`}
+              } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {option.label}
             </button>
@@ -61,9 +94,12 @@ export const CurrencyInputWithToggle = ({
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral">₹</span>
         <input
+          ref={inputRef}
           type="text"
-          value={formattedValue}
+          value={inputValue}
           onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           disabled={disabled}
           className="w-full pl-7 pr-3 py-2 border border-border rounded-md font-mono text-sm focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-gray-100"
         />
