@@ -49,7 +49,7 @@ export const RegimeComparison = () => {
                   : 'bg-gray-100 text-neutral hover:bg-gray-200'
               }`}
             >
-              New Regime (FY 2025-26)
+              New Regime (FY 2026-27)
             </button>
             <button
               onClick={() => handleRegimeChange('old')}

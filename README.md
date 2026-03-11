@@ -1,6 +1,6 @@
 # 🧮 Indian Tax Calculator
 
-A comprehensive, open-source Indian salary and tax calculator built with React. Calculate your in-hand salary, compare tax regimes, and understand your earnings breakdown for FY 2025-26 (AY 2026-27).
+A comprehensive, open-source Indian salary and tax calculator built with React. Calculate your in-hand salary, compare tax regimes, and understand your earnings breakdown for FY 2026-27 (AY 2027-28).
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react)
@@ -18,7 +18,7 @@ A comprehensive, open-source Indian salary and tax calculator built with React. 
 - **Net In-Hand Salary**: After all deductions
 - **CTC Calculation**: Including employer contributions (PF, NPS, Gratuity)
 
-### 💰 Tax Computation (FY 2025-26 / AY 2026-27)
+### 💰 Tax Computation (FY 2026-27 / AY 2027-28)
 - **Old Tax Regime**: Full deductions (HRA, 80C, 80D, Home Loan, NPS)
 - **New Tax Regime**: Simplified with ₹4L basic exemption, tax-free up to ₹12L
 - **Side-by-side Comparison**: Find your optimal regime automatically
@@ -123,7 +123,7 @@ npm run test:watch
 
 ## 📖 Calculation Reference
 
-### Old Tax Regime Slabs (FY 2025-26)
+### Old Tax Regime Slabs (FY 2026-27)
 
 | Income Range | Tax Rate |
 |--------------|----------|
@@ -132,7 +132,7 @@ npm run test:watch
 | ₹5,00,001 - ₹10,00,000 | 20% |
 | Above ₹10,00,000 | 30% |
 
-### New Tax Regime Slabs (FY 2025-26)
+### New Tax Regime Slabs (FY 2026-27)
 
 | Income Range | Tax Rate |
 |--------------|----------|
@@ -193,7 +193,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Tax calculations based on Indian Income Tax Act for FY 2025-26 (AY 2026-27)
+- Tax calculations based on Indian Income Tax Act for FY 2026-27 (AY 2027-28)
 - Tax slab information from [ClearTax](https://cleartax.in)
 - Professional Tax slabs sourced from respective state regulations
 - Icons by [Lucide](https://lucide.dev/)

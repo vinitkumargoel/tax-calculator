@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial open source release
 - Multi-profile salary management
-- Old and New tax regime calculations (FY 2025-26 / AY 2026-27)
+- Old and New tax regime calculations (FY 2026-27 / AY 2027-28)
 - HRA exemption calculation (metro/non-metro support)
 - Section 80C deduction tracking (₹1.5L limit)
 - Section 80D medical insurance deductions
@@ -31,11 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit tests for calculation utilities
 
 ### Tax Features
-- Old Regime tax slabs (FY 2025-26)
+- Old Regime tax slabs (FY 2026-27)
   - Basic exemption: ₹2.5L
   - Standard deduction: ₹50,000
   - Section 87A rebate: ₹12,500 (up to ₹5L tax-free)
-- New Regime tax slabs (FY 2025-26)
+- New Regime tax slabs (FY 2026-27)
   - Basic exemption: ₹4L
   - Standard deduction: ₹75,000
   - Section 87A rebate: ₹60,000 (up to ₹12L tax-free)
