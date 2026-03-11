@@ -22,7 +22,7 @@ export const EarningsForm = () => {
     const id = crypto.randomUUID()
     dispatch({ 
       type: 'ADD_CUSTOM_EARNING', 
-      payload: { id, label: 'Custom Earning', amount: 0 } 
+      payload: { id, label: 'Other Earning', amount: 0 } 
     })
   }
   
@@ -108,40 +108,52 @@ export const EarningsForm = () => {
           hint="Employer cost, added to CTC"
         />
         
-        {(earnings.custom || []).map((item) => (
-          <div key={item.id} className="space-y-2">
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="block text-sm text-neutral mb-1">Label</label>
-                <input
-                  type="text"
-                  value={item.label}
-                  onChange={(e) => handleUpdateCustomEarning(item.id, 'label', e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded-md text-sm"
-                  placeholder="Custom earning name"
-                />
-              </div>
-              <button
-                onClick={() => handleRemoveCustomEarning(item.id)}
-                className="p-2 text-negative hover:bg-red-50 rounded self-end mb-0.5"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-            <CurrencyInputWithToggle
-              label="Amount"
-              value={item.amount}
-              onChange={(v) => handleUpdateCustomEarning(item.id, 'amount', v)}
-            />
+        <div className="border-t border-border pt-4 mt-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-medium">Other Earnings</h4>
+            <button
+              onClick={handleAddCustomEarning}
+              className="px-3 py-1 text-xs bg-primary text-white rounded-md hover:bg-blue-700 flex items-center gap-1"
+            >
+              <Plus size={14} /> Add
+            </button>
           </div>
-        ))}
-        
-        <button
-          onClick={handleAddCustomEarning}
-          className="w-full py-2 border border-dashed border-border rounded-md text-sm text-neutral hover:border-primary hover:text-primary flex items-center justify-center gap-2"
-        >
-          <Plus size={16} /> Add Custom Earning
-        </button>
+          
+          {(earnings.custom || []).length === 0 && (
+            <p className="text-xs text-neutral mb-2">
+              Add any additional earnings like variable pay, overtime, etc.
+            </p>
+          )}
+          
+          {(earnings.custom || []).map((item) => (
+            <div key={item.id} className="p-3 bg-gray-50 rounded-md mb-2">
+              <div className="flex gap-2 items-start">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={item.label}
+                    onChange={(e) => handleUpdateCustomEarning(item.id, 'label', e.target.value)}
+                    className="w-full px-3 py-1.5 text-sm border border-border rounded-md mb-2"
+                    placeholder="Earning name (e.g., Variable Pay)"
+                  />
+                  <CurrencyInputWithToggle
+                    label="Amount"
+                    value={item.amount}
+                    onChange={(v) => handleUpdateCustomEarning(item.id, 'amount', v)}
+                    className="mb-0"
+                  />
+                </div>
+                <button
+                  onClick={() => handleRemoveCustomEarning(item.id)}
+                  className="p-2 text-negative hover:bg-red-50 rounded mt-0.5"
+                  title="Remove earning"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

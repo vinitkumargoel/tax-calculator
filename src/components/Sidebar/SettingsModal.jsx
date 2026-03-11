@@ -2,6 +2,7 @@ import React from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { Modal } from '../shared/Modal.jsx'
 import { Toggle } from '../shared/Toggle.jsx'
+import { Select } from '../shared/Select.jsx'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
 import { PT_BY_STATE } from '../../constants/ptByState.js'
 import { formatCurrency } from '../../utils/formatCurrency.js'
@@ -74,21 +75,13 @@ export const SettingsModal = ({ isOpen, onClose }) => {
           </p>
         </div>
         
-        <div>
-          <label className="block text-sm font-medium mb-1">State (for Professional Tax)</label>
-          <select
-            value={activeProfile.state || 'none'}
-            onChange={(e) => handleSettingsChange('state', e.target.value)}
-            className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-          >
-            {stateOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-          <p className="text-xs text-neutral mt-1">
-            Current PT: {formatCurrency(currentPT)}/month
-          </p>
-        </div>
+        <Select
+          label="State (for Professional Tax)"
+          value={activeProfile.state || 'none'}
+          onChange={(v) => handleSettingsChange('state', v)}
+          options={stateOptions}
+          hint={`Current PT: ${formatCurrency(currentPT)}/month`}
+        />
         
         <div>
           <h4 className="font-medium text-sm mb-3">PF Calculation Mode</h4>

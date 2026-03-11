@@ -1,7 +1,7 @@
 import React from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
-import { CurrencyInput, InfoTooltip, Toggle, Select } from '../shared/index.js'
+import { CurrencyInput, CurrencyInputWithToggle, InfoTooltip, Toggle, Select } from '../shared/index.js'
 import { Plus, Trash2, AlertCircle } from 'lucide-react'
 import { PT_BY_STATE, STATE_OPTIONS } from '../../constants/ptByState.js'
 import { formatCurrency } from '../../utils/formatCurrency.js'
@@ -23,7 +23,7 @@ export const DeductionsForm = () => {
     const id = crypto.randomUUID()
     dispatch({ 
       type: 'ADD_CUSTOM_DEDUCTION', 
-      payload: { id, label: 'Custom Deduction', amount: 0 } 
+      payload: { id, label: 'Other Deduction', amount: 0 } 
     })
   }
   
@@ -68,7 +68,7 @@ export const DeductionsForm = () => {
           </p>
         </div>
         
-        <CurrencyInput
+        <CurrencyInputWithToggle
           label="VPF (Voluntary PF)"
           value={deductions.vpf || 0}
           onChange={(v) => handleUpdateDeductions('vpf', v)}
@@ -107,76 +107,88 @@ export const DeductionsForm = () => {
           hint={`Current: ₹${calculations.professionalTax}/mo`}
         />
         
-<div className="p-3 bg-gray-50 rounded-md">
-  <div className="flex items-center justify-between mb-2">
-    <span className="text-sm font-medium">PF Breakdown</span>
-    <span className="font-mono text-primary">{formatCurrency(calculations.employerPF)}</span>
-  </div>
-  <div className="grid grid-cols-2 gap-2 text-xs">
-    <div className="bg-white p-2 rounded border border-border">
-      <p className="text-neutral">Employer PF (3.67%)</p>
-      <p className="font-mono text-positive">{formatCurrency(Math.min((activeProfile?.earnings?.basic || 0) * 0.0367, activeProfile?.pfMode === 'capped' ? 550 : Infinity))}/mo</p>
-    </div>
-    <div className="bg-white p-2 rounded border border-border">
-      <p className="text-neutral">EPS (8.33%)</p>
-      <p className="font-mono text-primary">{formatCurrency(Math.min((activeProfile?.earnings?.basic || 0) * 0.0833, activeProfile?.pfMode === 'capped' ? 1250 : Infinity))}/mo</p>
-    </div>
-  </div>
-  <p className="text-xs text-neutral mt-2">
-    {activeProfile?.pfMode === 'capped' 
-      ? 'Capped at ₹15,000 basic for EPS'
-      : 'Applied on full Basic'}
-  </p>
-</div>
-
-<CurrencyInput
-  label="NPS (Employee 80CCD(1B))"
-  value={deductions.npsEmployee || 0}
-  onChange={(v) => handleUpdateDeductions('npsEmployee', v)}
-  hint="Up to ₹50,000 deduction (Old Regime)"
-/>
-
-<CurrencyInput
-  label="NPS (Employer contribution)"
-  value={deductions.npsEmployer || 0}
-  onChange={(v) => handleUpdateDeductions('npsEmployer', v)}
-  hint="Employer cost, added to CTC"
-/>
-        
-        {(deductions.custom || []).map((item) => (
-          <div key={item.id} className="space-y-2">
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="block text-sm text-neutral mb-1">Label</label>
-                <input
-                  type="text"
-                  value={item.label}
-                  onChange={(e) => handleUpdateCustomDeduction(item.id, 'label', e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded-md text-sm"
-                  placeholder="Custom deduction name"
-                />
-              </div>
-              <button
-                onClick={() => handleRemoveCustomDeduction(item.id)}
-                className="p-2 text-negative hover:bg-red-50 rounded self-end mb-0.5"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-            <CurrencyInput
-              label="Amount"
-              value={item.amount}
-              onChange={(v) => handleUpdateCustomDeduction(item.id, 'amount', v)}
-            />
+        <div className="p-3 bg-gray-50 rounded-md">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium">PF Breakdown</span>
+            <span className="font-mono text-primary">{formatCurrency(calculations.employerPF)}</span>
           </div>
-        ))}
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="bg-white p-2 rounded border border-border">
+              <p className="text-neutral">Employer PF (3.67%)</p>
+              <p className="font-mono text-positive">{formatCurrency(Math.min((activeProfile?.earnings?.basic || 0) * 0.0367, activeProfile?.pfMode === 'capped' ? 550 : Infinity))}/mo</p>
+            </div>
+            <div className="bg-white p-2 rounded border border-border">
+              <p className="text-neutral">EPS (8.33%)</p>
+              <p className="font-mono text-primary">{formatCurrency(Math.min((activeProfile?.earnings?.basic || 0) * 0.0833, activeProfile?.pfMode === 'capped' ? 1250 : Infinity))}/mo</p>
+            </div>
+          </div>
+          <p className="text-xs text-neutral mt-2">
+            {activeProfile?.pfMode === 'capped' 
+              ? 'Capped at ₹15,000 basic for EPS'
+              : 'Applied on full Basic'}
+          </p>
+        </div>
+
+        <CurrencyInputWithToggle
+          label="NPS (Employee 80CCD(1B))"
+          value={deductions.npsEmployee || 0}
+          onChange={(v) => handleUpdateDeductions('npsEmployee', v)}
+          hint="Up to ₹50,000 deduction (Old Regime)"
+        />
+
+        <CurrencyInputWithToggle
+          label="NPS (Employer contribution)"
+          value={deductions.npsEmployer || 0}
+          onChange={(v) => handleUpdateDeductions('npsEmployer', v)}
+          hint="Employer cost, added to CTC"
+        />
         
-        <button
-          onClick={handleAddCustomDeduction}
-          className="w-full py-2 border border-dashed border-border rounded-md text-sm text-neutral hover:border-primary hover:text-primary flex items-center justify-center gap-2"
-        >
-          <Plus size={16} /> Add Custom Deduction
-        </button>
+        <div className="border-t border-border pt-4 mt-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-medium">Other Deductions</h4>
+            <button
+              onClick={handleAddCustomDeduction}
+              className="px-3 py-1 text-xs bg-primary text-white rounded-md hover:bg-blue-700 flex items-center gap-1"
+            >
+              <Plus size={14} /> Add
+            </button>
+          </div>
+          
+          {(deductions.custom || []).length === 0 && (
+            <p className="text-xs text-neutral mb-2">
+              Add any additional deductions like loan EMIs, insurance premiums, etc.
+            </p>
+          )}
+          
+          {(deductions.custom || []).map((item) => (
+            <div key={item.id} className="p-3 bg-gray-50 rounded-md mb-2">
+              <div className="flex gap-2 items-start">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={item.label}
+                    onChange={(e) => handleUpdateCustomDeduction(item.id, 'label', e.target.value)}
+                    className="w-full px-3 py-1.5 text-sm border border-border rounded-md mb-2"
+                    placeholder="Deduction name (e.g., Home Loan EMI)"
+                  />
+                  <CurrencyInputWithToggle
+                    label="Amount"
+                    value={item.amount}
+                    onChange={(v) => handleUpdateCustomDeduction(item.id, 'amount', v)}
+                    className="mb-0"
+                  />
+                </div>
+                <button
+                  onClick={() => handleRemoveCustomDeduction(item.id)}
+                  className="p-2 text-negative hover:bg-red-50 rounded mt-0.5"
+                  title="Remove deduction"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

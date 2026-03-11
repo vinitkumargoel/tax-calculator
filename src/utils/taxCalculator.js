@@ -146,12 +146,17 @@ export const calculateTax = (profile, monthlyGross, annualBonus) => {
     result.deductions.homeLoanInterest = homeLoanDeduction
     taxableIncome -= homeLoanDeduction
     
+    const customExemptions = (exemptions.custom || []).reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
+    result.deductions.customExemptions = customExemptions
+    taxableIncome -= customExemptions
+    
     result.deductions.total = result.deductions.hraExemption + 
                                result.deductions.ltaExemption +
                                result.deductions.section80C +
                                result.deductions.section80D +
                                result.deductions.nps80CCD1B +
-                               result.deductions.homeLoanInterest
+                               result.deductions.homeLoanInterest +
+                               result.deductions.customExemptions
   } else {
     result.deductions.total = 0
   }

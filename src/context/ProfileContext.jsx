@@ -54,6 +54,7 @@ const createDefaultProfile = () => ({
       propertyType: 'self-occupied',
       annualInterest: 0,
     },
+    custom: [],
   },
 })
 
@@ -265,6 +266,34 @@ const profileReducer = (state, action) => {
         profiles: state.profiles.map(p => 
           p.id === state.activeProfileId 
             ? { ...p, deductions: { ...p.deductions, custom }, updatedAt: new Date().toISOString() }
+            : p
+        ),
+      }
+    }
+    
+    case 'ADD_CUSTOM_EXEMPTION': {
+      const profile = state.profiles.find(p => p.id === state.activeProfileId)
+      if (!profile) return state
+      const custom = [...(profile.exemptions.custom || []), action.payload]
+      return {
+        ...state,
+        profiles: state.profiles.map(p => 
+          p.id === state.activeProfileId 
+            ? { ...p, exemptions: { ...p.exemptions, custom }, updatedAt: new Date().toISOString() }
+            : p
+        ),
+      }
+    }
+    
+    case 'REMOVE_CUSTOM_EXEMPTION': {
+      const profile = state.profiles.find(p => p.id === state.activeProfileId)
+      if (!profile) return state
+      const custom = (profile.exemptions.custom || []).filter(c => c.id !== action.payload)
+      return {
+        ...state,
+        profiles: state.profiles.map(p => 
+          p.id === state.activeProfileId 
+            ? { ...p, exemptions: { ...p.exemptions, custom }, updatedAt: new Date().toISOString() }
             : p
         ),
       }

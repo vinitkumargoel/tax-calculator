@@ -3,7 +3,7 @@ import { useProfile } from '../../context/ProfileContext.jsx'
 import { CurrencyInput, Toggle, Select, Checkbox } from '../shared/index.js'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
 import { formatCurrency } from '../../utils/formatCurrency.js'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react'
 
 export const ExemptionsForm = () => {
   const { activeProfile, dispatch } = useProfile()
@@ -54,6 +54,25 @@ export const ExemptionsForm = () => {
         homeLoan: { ...(exemptions.homeLoan || {}), [field]: value } 
       } 
     })
+  }
+  
+  const handleAddCustomExemption = () => {
+    const id = crypto.randomUUID()
+    dispatch({ 
+      type: 'ADD_CUSTOM_EXEMPTION', 
+      payload: { id, label: 'Other Exemption', amount: 0 } 
+    })
+  }
+  
+  const handleRemoveCustomExemption = (id) => {
+    dispatch({ type: 'REMOVE_CUSTOM_EXEMPTION', payload: id })
+  }
+  
+  const handleUpdateCustomExemption = (id, field, value) => {
+    const custom = (exemptions.custom || []).map(c => 
+      c.id === id ? { ...c, [field]: value } : c
+    )
+    dispatch({ type: 'UPDATE_EXEMPTIONS', payload: { custom } })
   }
   
   const cityTypeOptions = [
@@ -258,6 +277,53 @@ export const ExemptionsForm = () => {
               value={exemptions.homeLoan?.annualInterest || 0}
               onChange={(v) => handleUpdateHomeLoan('annualInterest', v)}
             />
+          </div>
+          
+          <div className="p-3 bg-gray-50 rounded-md">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium text-sm">Other Exemptions</h4>
+              <button
+                onClick={handleAddCustomExemption}
+                className="px-3 py-1 text-xs bg-primary text-white rounded-md hover:bg-blue-700 flex items-center gap-1"
+              >
+                <Plus size={14} /> Add
+              </button>
+            </div>
+            
+            {(exemptions.custom || []).length === 0 && (
+              <p className="text-xs text-neutral mb-2">
+                Add any additional exemptions like donations, other deductions, etc.
+              </p>
+            )}
+            
+            {(exemptions.custom || []).map((item) => (
+              <div key={item.id} className="p-3 bg-white rounded border border-border mb-2">
+                <div className="flex gap-2 items-start">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={item.label}
+                      onChange={(e) => handleUpdateCustomExemption(item.id, 'label', e.target.value)}
+                      className="w-full px-3 py-1.5 text-sm border border-border rounded-md mb-2"
+                      placeholder="Exemption name (e.g., Donations)"
+                    />
+                    <CurrencyInput
+                      label="Amount"
+                      value={item.amount}
+                      onChange={(v) => handleUpdateCustomExemption(item.id, 'amount', v)}
+                      className="mb-0"
+                    />
+                  </div>
+                  <button
+                    onClick={() => handleRemoveCustomExemption(item.id)}
+                    className="p-2 text-negative hover:bg-red-50 rounded mt-0.5"
+                    title="Remove exemption"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
