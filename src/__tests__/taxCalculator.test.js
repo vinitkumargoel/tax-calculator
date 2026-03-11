@@ -20,6 +20,7 @@ const createMockProfile = (overrides = {}) => ({
     section80D: { selfFamily: 0, parents: 0, selfFamilySenior: false, parentsSenior: false },
     nps80CCD1B: 0,
     homeLoan: { annualInterest: 0, propertyType: 'self-occupied' },
+    custom: [],
     ...overrides.exemptions,
   },
   ...overrides,
@@ -353,6 +354,81 @@ describe('Tax Calculator - Old Regime', () => {
       })
       const result = calculateOldRegimeTax(profile, 50000, 0)
       expect(result.deductions.ltaExemption).toBe(25000)
+    })
+  })
+
+  describe('Custom exemptions', () => {
+    it('should deduct custom exemptions from taxable income', () => {
+      const profile = createMockProfile({
+        taxRegime: 'old',
+        exemptions: {
+          custom: [
+            { id: '1', label: 'Donations', amount: 50000 },
+            { id: '2', label: 'Other', amount: 25000 },
+          ],
+        },
+      })
+      const result = calculateOldRegimeTax(profile, 50000, 0)
+      expect(result.deductions.customExemptions).toBe(75000)
+    })
+
+    it('should include custom exemptions in total deductions', () => {
+      const profile = createMockProfile({
+        taxRegime: 'old',
+        exemptions: {
+          rentPaid: 15000,
+          ltaExemption: 20000,
+          section80C: { pf: 100000 },
+          custom: [{ id: '1', label: 'Donations', amount: 30000 }],
+        },
+      })
+      const result = calculateOldRegimeTax(profile, 50000, 0)
+      expect(result.deductions.customExemptions).toBe(30000)
+      expect(result.deductions.total).toBeGreaterThan(0)
+    })
+
+    it('should handle empty custom exemptions array', () => {
+      const profile = createMockProfile({
+        taxRegime: 'old',
+        exemptions: { custom: [] },
+      })
+      const result = calculateOldRegimeTax(profile, 50000, 0)
+      expect(result.deductions.customExemptions).toBe(0)
+    })
+
+    it('should handle missing custom exemptions field', () => {
+      const profile = createMockProfile({
+        taxRegime: 'old',
+        exemptions: { rentPaid: 15000 },
+      })
+      const result = calculateOldRegimeTax(profile, 50000, 0)
+      expect(result.deductions.customExemptions).toBe(0)
+    })
+
+    it('should handle invalid amount in custom exemptions', () => {
+      const profile = createMockProfile({
+        taxRegime: 'old',
+        exemptions: {
+          custom: [
+            { id: '1', label: 'Valid', amount: 50000 },
+            { id: '2', label: 'Invalid', amount: 'invalid' },
+            { id: '3', label: 'Null', amount: null },
+          ],
+        },
+      })
+      const result = calculateOldRegimeTax(profile, 50000, 0)
+      expect(result.deductions.customExemptions).toBe(50000)
+    })
+
+    it('should not apply custom exemptions in new regime', () => {
+      const profile = createMockProfile({
+        taxRegime: 'new',
+        exemptions: {
+          custom: [{ id: '1', label: 'Donations', amount: 50000 }],
+        },
+      })
+      const result = calculateNewRegimeTax(profile, 50000, 0)
+      expect(result.deductions.total).toBe(0)
     })
   })
 
