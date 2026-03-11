@@ -1,0 +1,1 @@
+export { PayslipPreview } from './PayslipPreview.jsx'
