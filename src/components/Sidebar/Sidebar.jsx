@@ -2,10 +2,9 @@ import React, { useState, memo } from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
 import { useSalaryCalculations } from '../../hooks/useSalaryCalculations.js'
 import { formatCurrency, formatCurrencyShort } from '../../utils/formatCurrency.js'
-import { Briefcase, Trash2, Copy, ChevronRight, Settings } from 'lucide-react'
+import { Briefcase, Trash2, Copy, ChevronRight } from 'lucide-react'
 import { ConfirmDialog } from '../shared/ConfirmDialog.jsx'
-import { Select } from '../shared/Select.jsx'
-import { PT_BY_STATE } from '../../constants/ptByState.js'
+import { SettingsModal } from './SettingsModal.jsx'
 
 export const ProfileCard = memo(({ profile, isActive, onClick }) => {
   const calculations = useSalaryCalculations(profile)
@@ -54,6 +53,7 @@ export const Sidebar = () => {
   const { state, dispatch, activeProfile } = useProfile()
   const { profiles, saving } = state
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, profileId: null, profileName: '' })
+  const [settingsOpen, setSettingsOpen] = useState(false)
   
   const handleCreateProfile = () => {
     dispatch({ type: 'CREATE_PROFILE' })
@@ -76,25 +76,6 @@ export const Sidebar = () => {
   const handleSelectProfile = (profileId) => {
     dispatch({ type: 'SET_ACTIVE_PROFILE', payload: profileId })
   }
-  
-  const handleSettingsChange = (field, value) => {
-    dispatch({ type: 'UPDATE_SETTINGS', payload: { [field]: value } })
-  }
-  
-  const stateOptions = Object.keys(PT_BY_STATE).map(key => ({
-    value: key,
-    label: PT_BY_STATE[key].name
-  }))
-  
-  const cityTypeOptions = [
-    { value: 'metro', label: 'Metro' },
-    { value: 'non-metro', label: 'Non-Metro' },
-  ]
-  
-  const pfModeOptions = [
-    { value: 'capped', label: 'Capped at ₹15,000' },
-    { value: 'full', label: 'Full Basic' },
-  ]
   
   return (
     <aside className="w-64 bg-white border-r border-border h-screen overflow-y-auto flex flex-col">
@@ -152,52 +133,19 @@ export const Sidebar = () => {
         </button>
       </div>
       
-      {activeProfile && (
-        <div className="p-3 border-t border-border bg-gray-50">
-          <div className="flex items-center gap-2 mb-3">
-            <Settings size={16} className="text-neutral" />
-            <h3 className="text-xs font-medium text-neutral">Settings</h3>
-          </div>
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs text-neutral mb-1">State (for PT)</label>
-              <select
-                value={activeProfile.state || 'none'}
-                onChange={(e) => handleSettingsChange('state', e.target.value)}
-                className="w-full px-2 py-1 text-xs border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                {stateOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-neutral mb-1">City Type (HRA)</label>
-              <select
-                value={activeProfile.cityType || 'metro'}
-                onChange={(e) => handleSettingsChange('cityType', e.target.value)}
-                className="w-full px-2 py-1 text-xs border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                {cityTypeOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-neutral mb-1">PF Mode</label>
-              <select
-                value={activeProfile.pfMode || 'capped'}
-                onChange={(e) => handleSettingsChange('pfMode', e.target.value)}
-                className="w-full px-2 py-1 text-xs border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                {pfModeOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="p-3 border-t border-border">
+        <button
+          onClick={() => setSettingsOpen(true)}
+          disabled={!activeProfile}
+          className="w-full py-2 px-4 border border-border bg-white rounded-md text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </button>
+      </div>
       
       <ConfirmDialog
         isOpen={deleteConfirm.isOpen}
@@ -208,6 +156,11 @@ export const Sidebar = () => {
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"
+      />
+      
+      <SettingsModal
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
       />
     </aside>
   )

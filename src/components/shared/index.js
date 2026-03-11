@@ -1,4 +1,5 @@
 export { CurrencyInput } from './CurrencyInput.jsx'
+export { CurrencyInputWithToggle } from './CurrencyInputWithToggle.jsx'
 export { InfoTooltip } from './InfoTooltip.jsx'
 export { Toggle } from './Toggle.jsx'
 export { ConfirmDialog } from './ConfirmDialog.jsx'

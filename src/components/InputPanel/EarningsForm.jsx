@@ -1,6 +1,6 @@
 import React from 'react'
 import { useProfile } from '../../context/ProfileContext.jsx'
-import { CurrencyInput, InfoTooltip } from '../shared/index.js'
+import { CurrencyInput, CurrencyInputWithToggle, InfoTooltip } from '../shared/index.js'
 import { Plus, Trash2 } from 'lucide-react'
 
 export const EarningsForm = () => {
@@ -41,20 +41,20 @@ export const EarningsForm = () => {
     <div className="bg-white p-4 rounded-lg border border-border">
       <h3 className="font-medium mb-4 flex items-center gap-2">
         Earnings
-        <InfoTooltip content="Monthly earnings unless marked as Annual">
+        <InfoTooltip content="Toggle between Monthly/Annual view for salary components">
           <span className="text-xs text-neutral">?</span>
         </InfoTooltip>
       </h3>
       
       <div className="space-y-3">
-        <CurrencyInput
+        <CurrencyInputWithToggle
           label="Basic Pay"
           value={earnings.basic || 0}
           onChange={(v) => handleChange('basic', v)}
           hint="Usually 40-50% of CTC"
         />
         
-        <CurrencyInput
+        <CurrencyInputWithToggle
           label="HRA"
           value={earnings.hra || 0}
           onChange={(v) => handleChange('hra', v)}
@@ -66,7 +66,7 @@ export const EarningsForm = () => {
           Auto-fill HRA (50% of Basic for Metro, 40% for Non-Metro)
         </button>
         
-        <CurrencyInput
+        <CurrencyInputWithToggle
           label="DA (Dearness Allowance)"
           value={earnings.da || 0}
           onChange={(v) => handleChange('da', v)}
@@ -81,7 +81,7 @@ export const EarningsForm = () => {
           hint="Annual amount, divided by 12 for monthly"
         />
         
-        <CurrencyInput
+        <CurrencyInputWithToggle
           label="Special Allowance"
           value={earnings.specialAllowance || 0}
           onChange={(v) => handleChange('specialAllowance', v)}
@@ -95,7 +95,7 @@ export const EarningsForm = () => {
           hint="Annual lump sum, added to annual gross only"
         />
         
-        <CurrencyInput
+        <CurrencyInputWithToggle
           label="Medical Allowance"
           value={earnings.medicalAllowance || 0}
           onChange={(v) => handleChange('medicalAllowance', v)}
@@ -128,7 +128,7 @@ export const EarningsForm = () => {
                 <Trash2 size={16} />
               </button>
             </div>
-            <CurrencyInput
+            <CurrencyInputWithToggle
               label="Amount"
               value={item.amount}
               onChange={(v) => handleUpdateCustomEarning(item.id, 'amount', v)}
